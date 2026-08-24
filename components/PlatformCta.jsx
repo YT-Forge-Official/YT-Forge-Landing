@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
 import { PLATFORMS, VERSION } from '@/lib/site';
 import { clsx } from '@/lib/clsx';
+import { motion } from "framer-motion";
 
 function detect() {
   if (typeof navigator === 'undefined') return null;
@@ -15,20 +16,29 @@ function detect() {
 }
 
 /**
- * Primary CTA that resolves to the visitor's own OS build.
- * Renders a neutral label on the server so there is no hydration mismatch,
- * then swaps in the detected platform on mount.
+ * Resolves the visitor's own OS build. Returns nulls on the server and on the
+ * first client render, so markup matches and there is no hydration mismatch;
+ * the real platform lands on mount.
  */
-export function PlatformCta({ className, size = 'lg' }) {
+export function usePlatform() {
   const [id, setId] = useState(null);
 
   useEffect(() => setId(detect()), []);
 
-  const platform = PLATFORMS.find((p) => p.id === id);
-  const build = platform?.builds.find((b) => b.primary) ?? platform?.builds[0];
+  const platform = PLATFORMS.find((p) => p.id === id) ?? null;
+  const build = platform?.builds.find((b) => b.primary) ?? platform?.builds[0] ?? null;
+
+  return { platform, build };
+}
+
+/**
+ * Primary CTA that resolves to the visitor's own OS build.
+ */
+export function PlatformCta({ className, size = 'lg' }) {
+  const { platform, build } = usePlatform();
 
   return (
-    <div className={clsx('flex flex-col items-center gap-2.5', className)}>
+    <div data-scroll data-scroll-section data-scroll-speed="-0.2"  className={clsx('flex flex-col items-center gap-2.5', className)}>
       <a
         href={build?.href ?? '#download'}
         className={clsx('btn btn-primary group', size === 'lg' && 'h-12 px-7 text-base')}

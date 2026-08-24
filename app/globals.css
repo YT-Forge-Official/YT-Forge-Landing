@@ -223,6 +223,198 @@ body {
     background: radial-gradient(closest-side, rgba(255, 106, 43, 0.2), rgba(255, 106, 43, 0.055) 45%, transparent 72%);
   }
 
+  /* Monochrome hero glow — replaces ember-glow in the hero section */
+  .hero-glow {
+    background: radial-gradient(closest-side, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025) 50%, transparent 75%);
+  }
+
+  /* ============================================================
+     HERO — display type, pointer-reactive backdrop, and the mark
+     standing behind the download bar.
+     The cursor layers read --mx/--my/--px/--py/--hover, written by the
+     rAF loop in components/Hero.jsx; every one of them degrades to a
+     still, perfectly good hero when those variables never appear.
+     ============================================================ */
+  .hero {
+    --mx: 50%;
+    --my: 40%;
+    --px: 0;
+    --py: 0;
+    --hover: 0;
+    /* Mark geometry. --bar-h is re-measured by the hero's rAF loop; the
+       fallback keeps the composition right before JS runs. */
+    --mark: clamp(230px, 30vw, 470px);
+    --bar-h: 97px;
+  }
+
+  /* The grid again, brighter, punched through by a disc at the cursor. */
+  .hero-grid-hot {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+    background-size: 72px 72px;
+    opacity: var(--hover);
+    transition: opacity 0.6s var(--ease-out);
+    mask-image: radial-gradient(220px 220px at var(--mx) var(--my), #000 0%, transparent 70%);
+    -webkit-mask-image: radial-gradient(220px 220px at var(--mx) var(--my), #000 0%, transparent 70%);
+  }
+
+  /* Wide, low-contrast key light trailing the pointer. */
+  .hero-spot {
+    background: radial-gradient(
+      520px 520px at var(--mx) var(--my),
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0.014) 45%,
+      transparent 72%
+    );
+    opacity: var(--hover);
+    transition: opacity 0.8s var(--ease-out);
+  }
+
+  /* ——— display type ——— */
+  .hero-display {
+    font-size: 9vw;
+    line-height: 0.86;
+    letter-spacing: -0.045em;
+    font-weight: 500;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* Each line is clipped by its own slot and rises into it. */
+  .masker { overflow: hidden; padding-bottom: 0.06em; }
+  .hero-line {
+    animation: line-rise 1.05s cubic-bezier(0.76, 0, 0.24, 1) both;
+    animation-delay: var(--d, 0ms);
+  }
+
+  /* The block that opens beside line two. It scales in on load, so `width`
+     stays free to answer the hover. */
+  .hero-block {
+    display: block;
+    height: 6.4vw;
+    width: 8.5vw;
+    flex: none;
+    position: relative;
+    top: 0.5vw;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--color-ember), var(--color-ember-dim));
+    transform-origin: left center;
+    animation: block-open 1.05s cubic-bezier(0.76, 0, 0.24, 1) 320ms both;
+    transition: width 0.55s var(--ease-enter);
+  }
+  .hero:hover .hero-block { width: 11vw; }
+
+  /* ——— the mark standing behind the bar ———
+     Its bottom edge is dropped half a mark below the bar's top edge, so the
+     bar cuts it exactly in two: top half in the light, bottom half occluded
+     by the bar and then clipped by the section. */
+  .hero-mark {
+    height: var(--mark);
+    width: var(--mark);
+    bottom: calc(var(--bar-h) - var(--mark) / 2);
+    opacity: 0.3;
+    /* Lit from above: the mark dims as it approaches the bar it stands behind. */
+    mask-image: linear-gradient(180deg, #000 0%, #000 52%, rgba(0, 0, 0, 0.55) 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 52%, rgba(0, 0, 0, 0.55) 100%);
+    transform: translate3d(calc(var(--px) * -20px), calc(var(--py) * -9px), 0);
+    transition:
+      opacity 0.7s var(--ease-out),
+      transform 0.9s var(--ease-enter);
+    will-change: transform;
+  }
+  .hero:hover .hero-mark { opacity: 0.42; }
+
+  /* ——— the bar itself ———
+     Opaque, so it truly occludes the mark, with a lit top edge and a
+     shadow thrown upward to seat the mark behind it. */
+  .hero-bar {
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-line);
+    box-shadow:
+      0 -1px 0 0 rgba(255, 255, 255, 0.05),
+      0 -30px 60px -20px rgba(0, 0, 0, 0.95),
+      0 -80px 90px -40px rgba(0, 0, 0, 0.8);
+  }
+  /* A sliver of light that tracks the cursor along the bar's top edge. */
+  .hero-bar::before {
+    content: "";
+    position: absolute;
+    inset: -1px 0 auto 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent
+    );
+    mask-image: radial-gradient(300px 1px at var(--mx) 0, #000, transparent 70%);
+    -webkit-mask-image: radial-gradient(300px 1px at var(--mx) 0, #000, transparent 70%);
+    opacity: var(--hover);
+    transition: opacity 0.5s var(--ease-out);
+  }
+
+  /* ——— pills in the bar ——— */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.5rem;
+    padding: 0 1.15rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-pill);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-ink);
+    transition:
+      background-color var(--dur-hover) var(--ease-out),
+      border-color var(--dur-hover) var(--ease-out),
+      color var(--dur-hover) var(--ease-out),
+      transform 0.35s var(--ease-enter);
+  }
+  .pill:hover {
+    border-color: var(--color-line-hover);
+    background: var(--color-bg-hover);
+    transform: translateY(-2px);
+  }
+  .pill-solid {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-bg);
+    font-weight: 500;
+  }
+  .pill-solid:hover { background: #ffffff; border-color: #ffffff; color: var(--color-bg); }
+
+  /* On phones the longest line sets the size — it has to fit on one row. */
+  @media (max-width: 767px) {
+    .hero { --mark: 68vw; }
+    .hero-display { font-size: 9.6vw; line-height: 0.92; letter-spacing: -0.038em; }
+    .hero-block { height: 6.8vw; width: 7vw; top: 0.4vw; border-radius: 5px; }
+    .hero:hover .hero-block { width: 7vw; }
+  }
+
+
+  /* Reflection under the hero logo — a subtle faded mirror */
+  .hero-logo-reflection {
+    transform: scaleY(-1);
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 60%);
+    -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 60%);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Greyscale + dimmed logo style for the editor marquee */
+  .editor-marquee-logo {
+    filter: grayscale(1) brightness(0.65) contrast(1.1);
+    transition: filter 0.4s var(--ease-out);
+  }
+  .group:hover .editor-marquee-logo {
+    filter: grayscale(0) brightness(1) contrast(1);
+  }
+
   .fade-b { mask-image: linear-gradient(180deg, #000 62%, transparent 100%); -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%); }
   .fade-x { mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); }
 
@@ -282,6 +474,18 @@ body {
 
 @keyframes spin-slow { to { transform: rotate(360deg); } }
 
+/* Hero line rising into its clipping slot. */
+@keyframes line-rise {
+  from { transform: translateY(105%); }
+  to { transform: translateY(0); }
+}
+
+/* The block opening beside line two. */
+@keyframes block-open {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
 @keyframes ring-out {
   0% { opacity: 0.6; transform: scale(1); }
   100% { opacity: 0; transform: scale(3.6); }
@@ -321,6 +525,16 @@ body {
     transition-duration: 0.001ms !important;
   }
   [data-reveal] { opacity: 1; transform: none; }
+  .hero-line { animation: none; }
+  .hero-block { animation: none; transform: none; }
+  .hero-mark { transform: translateY(50%); }
+}
+
+/* Touch devices never get a pointer — keep the still composition. */
+@media (hover: none) {
+  .hero-grid-hot, .hero-spot { display: none; }
+  .hero-bar::before { display: none; }
+  .hero-mark { transform: translateY(50%); }
 }
 
 @keyframes playhead {
