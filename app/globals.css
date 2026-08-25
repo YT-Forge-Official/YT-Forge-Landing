@@ -6,23 +6,23 @@
    ============================================================ */
 @theme {
   /* surfaces */
-  --color-bg: #08090a;
-  --color-bg-elevated: #0e0f11;
-  --color-bg-card: #141517;
-  --color-bg-hover: #1c1d20;
+  --color-bg: #15171a;
+  --color-bg-elevated: #1c1f24;
+  --color-bg-card: #25292e;
+  --color-bg-hover: #30353c;
 
   /* hairlines */
-  --color-line-subtle: #ffffff0f;
-  --color-line: #ffffff1a;
-  --color-line-strong: #ffffff29;
-  --color-line-hover: #ffffff3d;
+  --color-line-subtle: #ffffff14;
+  --color-line: #ffffff22;
+  --color-line-strong: #ffffff33;
+  --color-line-hover: #ffffff4a;
 
   /* ink */
-  --color-ink: #f7f8f8;
-  --color-ink-deck: #d0d6e0;
-  --color-ink-2: #8a8f98;
-  --color-ink-3: #7c828b;
-  --color-ink-4: #5d6067;
+  --color-ink: #ffffff;
+  --color-ink-deck: #dae1eb;
+  --color-ink-2: #9da4af;
+  --color-ink-3: #89909b;
+  --color-ink-4: #70757f;
 
   /* accent — ember. used at <5% of surface area */
   --color-ember: #ff6a2b;

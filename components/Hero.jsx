@@ -14,7 +14,7 @@ export function Hero({ stars }) {
   const markRef = useRef(null);
 
   const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 800], [0, 150]);
+  const y = useTransform(scrollY, [0, 800], [0, 180]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -94,9 +94,9 @@ export function Hero({ stars }) {
             <div
               className="absolute inset-0 transition-opacity duration-500"
               style={{
-                opacity: 'calc(0.4 + 0.6 * var(--hover))',
-                maskImage: 'radial-gradient(circle 700px at var(--mx) var(--my), black, rgba(0,0,0,0.3) 70%)',
-                WebkitMaskImage: 'radial-gradient(circle 700px at var(--mx) var(--my), black, rgba(0,0,0,0.3) 70%)',
+                opacity: 'calc(0.7 + 0.3 * var(--hover))',
+                maskImage: 'radial-gradient(circle 700px at var(--mx) var(--my), black, rgba(0,0,0,0.45) 70%)',
+                WebkitMaskImage: 'radial-gradient(circle 700px at var(--mx) var(--my), black, rgba(0,0,0,0.45) 70%)',
               }}
             >
               <Image
@@ -113,7 +113,7 @@ export function Hero({ stars }) {
         </motion.div>
 
         {/* The Opaque Bar */}
-        <div className="relative z-20 w-full border-t border-white/10 bg-[#08090a]">
+        <div className="relative z-20 w-full border-t border-white/10 bg-[var(--color-bg)]">
           <Container>
             <div
               className="flex flex-col items-center justify-center gap-4 py-10 sm:flex-row sm:gap-6"
