@@ -43,7 +43,7 @@ export function Download() {
                 </p>
 
                 <a href={primary.href} className="btn btn-primary mt-7 w-full">
-                  <DownloadIcon className="size-4 transition-transform duration-300 group-hover:translate-y-0.5" />
+                <DownloadIcon className="size-4 transition-transform duration-300" />
                   Download
                 </a>
 

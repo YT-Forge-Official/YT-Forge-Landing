@@ -24,7 +24,7 @@ export default async function Page() {
       <Reveal />
       <Nav stars={stars} />
       <main>
-        <Hero stars={stars} />
+        <Hero />
         <BrandBand />
         <Problem />
         <HowItWorks />

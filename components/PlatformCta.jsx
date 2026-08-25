@@ -43,7 +43,7 @@ export function PlatformCta({ className, size = 'lg' }) {
         href={build?.href ?? '#download'}
         className={clsx('btn btn-primary group', size === 'lg' && 'h-12 px-7 text-base')}
       >
-        <Download className="size-4 transition-transform duration-300 group-hover:translate-y-0.5" />
+        <Download className="size-4 transition-transform duration-300" />
         {platform ? `Download for ${platform.name}` : 'Download free'}
       </a>
       <p className="text-meta text-ink-4 font-[family-name:var(--font-geist-mono)] uppercase">
