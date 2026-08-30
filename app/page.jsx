@@ -3,11 +3,8 @@ import { Reveal } from '@/components/Reveal';
 import { Nav } from '@/components/Nav';
 import { Hero } from '@/components/Hero';
 import { BrandBand } from '@/components/BrandBand';
-import { Problem } from '@/components/Problem';
-import { HowItWorks } from '@/components/HowItWorks';
 import { Showcase } from '@/components/Showcase';
 import { Features } from '@/components/Features';
-import { Formats } from '@/components/Formats';
 import { Download } from '@/components/Download';
 import { Extension } from '@/components/Extension';
 import { OpenSource } from '@/components/OpenSource';
@@ -26,11 +23,8 @@ export default async function Page() {
       <main>
         <Hero />
         <BrandBand />
-        <Problem />
-        <HowItWorks />
         <Showcase />
         <Features />
-        <Formats />
         <Download />
         <Extension />
         <OpenSource stats={stats} />

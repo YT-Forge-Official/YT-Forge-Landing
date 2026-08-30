@@ -231,192 +231,434 @@ body {
   }
 
   /* ============================================================
-     HERO — display type, pointer-reactive backdrop, and the mark
-     standing behind the download bar.
-     The cursor layers read --mx/--my/--px/--py/--hover, written by the
-     rAF loop in components/Hero.jsx; every one of them degrades to a
-     still, perfectly good hero when those variables never appear.
+     HERO
+
+     One token drives the whole composition: --mark. It is bounded on BOTH
+     axes — min(vw, vh) — so the mark can neither swamp a short window nor
+     vanish on a wide one, and every gap below is expressed in terms of it.
+     That is the fix for the layout coming apart on resize: there is now a
+     single source of size, not a viewport-height figure in the markup and an
+     unrelated clamp in the stylesheet.
+
+     Structure:
+       .hero          column: nav clearance, stage, bar
+       .hero-stage    grows; centres the headline in the room above the mark
+       .hero-mark     square, centred on the bar's top edge, half of it below
+       .hero-bar      opaque, so it occludes the half it cuts
      ============================================================ */
   .hero {
+    /* Back to the old visual weight — the previous h-[120vh] — but bounded on
+       both axes so a short window can't let it swallow the headline and a
+       narrow one can't shrink it to nothing. Horizontal crop on phones is
+       intended; the section clips it. */
+    --mark: clamp(320px, min(120vw, 118vh), 1400px);
+    --gap: clamp(2rem, 4.4vw, 4.5rem);
+    /* pointer light, written by the hero's pointermove handler */
     --mx: 50%;
-    --my: 40%;
-    --px: 0;
-    --py: 0;
+    --my: 50%;
     --hover: 0;
-    /* Mark geometry. --bar-h is re-measured by the hero's rAF loop; the
-       fallback keeps the composition right before JS runs. */
-    --mark: clamp(230px, 30vw, 470px);
-    --bar-h: 97px;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    /* The headline is centred in the space the mark and the bar leave behind,
+       so its top and bottom gaps are this slack halved — not a margin. Trim
+       the slack to tighten them. */
+    min-height: 96svh;
+    overflow: hidden;
+    padding-top: calc(var(--nav-h) + var(--gap));
   }
 
-  /* The grid again, brighter, punched through by a disc at the cursor. */
-  .hero-grid-hot {
-    background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
-    background-size: 72px 72px;
-    opacity: var(--hover);
-    transition: opacity 0.6s var(--ease-out);
-    mask-image: radial-gradient(220px 220px at var(--mx) var(--my), #000 0%, transparent 70%);
-    -webkit-mask-image: radial-gradient(220px 220px at var(--mx) var(--my), #000 0%, transparent 70%);
+  .hero-stage {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Reserves the room the mark's visible INK occupies — about a third of
+       the box, since the glyph is inset inside its 1800² canvas. Reserving a
+       full half would be reserving the SVG's own padding and would push the
+       headline off a short screen for nothing. */
+    padding-bottom: calc(var(--mark) * 0.34 + var(--gap) * 0.5);
   }
 
-  /* Wide, low-contrast key light trailing the pointer. */
-  .hero-spot {
-    background: radial-gradient(
-      520px 520px at var(--mx) var(--my),
-      rgba(255, 255, 255, 0.055),
-      rgba(255, 255, 255, 0.014) 45%,
-      transparent 72%
-    );
-    opacity: var(--hover);
-    transition: opacity 0.8s var(--ease-out);
-  }
-
-  /* ——— display type ——— */
-  .hero-display {
-    font-size: 9vw;
-    line-height: 0.86;
-    letter-spacing: -0.045em;
+  /* ——— display type ———
+     Sized to fit its own longest line at every width, and held to one line,
+     so the two-line composition is identical from 320px to 4K. */
+  .hero-title {
+    font-size: clamp(1.5rem, 7.4vw, 5.25rem);
+    line-height: 0.98;
+    letter-spacing: -0.042em;
     font-weight: 500;
-    text-transform: uppercase;
-    white-space: nowrap;
   }
+  .hero-title .masker > * { white-space: nowrap; }
 
   /* Each line is clipped by its own slot and rises into it. */
-  .masker { overflow: hidden; padding-bottom: 0.06em; }
+  .masker { overflow: hidden; padding-bottom: 0.08em; }
   .hero-line {
     animation: line-rise 1.05s cubic-bezier(0.76, 0, 0.24, 1) both;
     animation-delay: var(--d, 0ms);
   }
 
-  /* The block that opens beside line two. It scales in on load, so `width`
-     stays free to answer the hover. */
-  .hero-block {
-    display: block;
-    height: 6.4vw;
-    width: 8.5vw;
-    flex: none;
-    position: relative;
-    top: 0.5vw;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--color-ember), var(--color-ember-dim));
-    transform-origin: left center;
-    animation: block-open 1.05s cubic-bezier(0.76, 0, 0.24, 1) 320ms both;
-    transition: width 0.55s var(--ease-enter);
-  }
-  .hero:hover .hero-block { width: 11vw; }
-
-  /* ——— the mark standing behind the bar ———
-     Its bottom edge is dropped half a mark below the bar's top edge, so the
-     bar cuts it exactly in two: top half in the light, bottom half occluded
-     by the bar and then clipped by the section. */
+  /* ——— the mark ———
+     Its centre sits on the bar's top edge, so the bar cuts it in two. The
+     mask dissolves it just before that line, so the cut reads as light
+     falling off rather than as a crop. */
   .hero-mark {
-    height: var(--mark);
+    position: absolute;
+    left: 50%;
+    bottom: 0;
     width: var(--mark);
-    bottom: calc(var(--bar-h) - var(--mark) / 2);
-    opacity: 0.3;
-    /* Lit from above: the mark dims as it approaches the bar it stands behind. */
-    mask-image: linear-gradient(180deg, #000 0%, #000 52%, rgba(0, 0, 0, 0.55) 100%);
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 52%, rgba(0, 0, 0, 0.55) 100%);
-    transform: translate3d(calc(var(--px) * -20px), calc(var(--py) * -9px), 0);
-    transition:
-      opacity 0.7s var(--ease-out),
-      transform 0.9s var(--ease-enter);
-    will-change: transform;
+    height: var(--mark);
+    transform: translate(-50%, 50%);
+    pointer-events: none;
+    mask-image: linear-gradient(180deg, #000 0%, #000 38%, rgba(0, 0, 0, 0.55) 47%, transparent 55%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 38%, rgba(0, 0, 0, 0.55) 47%, transparent 55%);
   }
-  .hero:hover .hero-mark { opacity: 0.42; }
+  /* Parallax lives on its own layer so it can never fight the positioning
+     transform above it. */
+  .hero-mark-inner { position: absolute; inset: 0; }
+  .hero-mark-inner > * { position: absolute; inset: 0; }
 
-  /* ——— the bar itself ———
-     Opaque, so it truly occludes the mark, with a lit top edge and a
-     shadow thrown upward to seat the mark behind it. */
+  .hero-mark-base {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    opacity: 0.1;
+  }
+
+  /* Edge-only glow, clipped to a disc that tracks the cursor. */
+  .hero-mark-edge {
+    opacity: var(--hover);
+    transition: opacity 0.5s var(--ease-out);
+    mask-image: radial-gradient(circle calc(var(--mark) * 0.28) at var(--mx) var(--my), #000, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle calc(var(--mark) * 0.28) at var(--mx) var(--my), #000, transparent 100%);
+  }
+  .hero-mark-edge img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    filter: url(#edge-glow) drop-shadow(0 0 6px rgba(255, 255, 255, 0.45));
+  }
+
+  /* ——— the bar ———
+     Opaque, so it truly occludes the half of the mark below the line, with a
+     lit top edge and a shadow thrown upward to seat the mark behind it. */
   .hero-bar {
+    position: relative;
+    z-index: 2;
+    width: 100%;
     background: var(--color-bg);
     border-top: 1px solid var(--color-line);
     box-shadow:
-      0 -1px 0 0 rgba(255, 255, 255, 0.05),
-      0 -30px 60px -20px rgba(0, 0, 0, 0.95),
-      0 -80px 90px -40px rgba(0, 0, 0, 0.8);
+      0 -1px 0 0 rgba(255, 255, 255, 0.045),
+      0 -40px 70px -30px rgba(0, 0, 0, 0.95);
   }
   /* A sliver of light that tracks the cursor along the bar's top edge. */
   .hero-bar::before {
-    content: "";
+    content: '';
     position: absolute;
     inset: -1px 0 auto 0;
     height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.55) 50%,
-      transparent
-    );
-    mask-image: radial-gradient(300px 1px at var(--mx) 0, #000, transparent 70%);
-    -webkit-mask-image: radial-gradient(300px 1px at var(--mx) 0, #000, transparent 70%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6) 50%, transparent);
+    mask-image: radial-gradient(320px 1px at var(--mx-bar) 0, #000, transparent 70%);
+    -webkit-mask-image: radial-gradient(320px 1px at var(--mx-bar) 0, #000, transparent 70%);
     opacity: var(--hover);
     transition: opacity 0.5s var(--ease-out);
   }
 
-  /* ——— pills in the bar ——— */
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    height: 2.5rem;
-    padding: 0 1.15rem;
-    border: 1px solid var(--color-line-strong);
-    border-radius: var(--radius-pill);
-    font-size: 0.8125rem;
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: var(--color-ink);
-    transition:
-      background-color var(--dur-hover) var(--ease-out),
-      border-color var(--dur-hover) var(--ease-out),
-      color var(--dur-hover) var(--ease-out),
-      transform 0.35s var(--ease-enter);
+  /* Touch and reduced motion both keep the composition — only the pointer
+     light and the rise are dropped, and neither carries any layout. */
+  @media (hover: none) {
+    .hero-mark-edge,
+    .hero-bar::before { display: none; }
   }
-  .pill:hover {
-    opacity: 0.8;
-  }
-  .pill:active {
-    opacity: 0.65;
-  }
-  .pill-solid {
-    background: var(--color-ink);
-    border-color: var(--color-ink);
-    color: var(--color-bg);
+
+  /* ============================================================
+     DROP ZONE — "drops straight into"
+
+     A uniform row of editor logos that doubles as a drag-and-drop target.
+
+     Two rules hold the whole thing together:
+       · No per-item chrome. Nothing is drawn around an editor at rest, so the
+         row reads as one continuous surface instead of twelve boxes.
+       · State is light, not decoration. Activation is a plate rising under
+         the target and the rest of the row falling back — no accent colour,
+         no outline, no glow. Depth comes from a lit top edge and value
+         contrast against the near-black ground, the same language the
+         .panel composite uses elsewhere on the page.
+     ============================================================ */
+  /* Display type, lit from above like every other surface on the page: the
+     gradient is the same top-light the panel and the plate use, just clipped
+     to the glyphs. The tracking is pushed past the section scale — at this
+     size the letters can carry it, and it is the one place the type gets to
+     read as a mark rather than as a heading. */
+  .dropzone-title {
+    font-size: clamp(2.25rem, 5.4vw, 4.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.05em;
     font-weight: 500;
+    background: linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #ffffff 32%,
+      rgba(255, 255, 255, 0.72) 72%,
+      rgba(255, 255, 255, 0.55) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* a hair of bloom, so it sits in the dark rather than on it */
+    filter: drop-shadow(0 0 48px rgba(255, 255, 255, 0.1));
   }
-  .pill-solid:hover { opacity: 0.8; }
-  .pill-solid:active { opacity: 0.65; }
-
-  /* On phones the longest line sets the size — it has to fit on one row. */
-  @media (max-width: 767px) {
-    .hero { --mark: 68vw; }
-    .hero-display { font-size: 9.6vw; line-height: 0.92; letter-spacing: -0.038em; }
-    .hero-block { height: 6.8vw; width: 7vw; top: 0.4vw; border-radius: 5px; }
-    .hero:hover .hero-block { width: 7vw; }
+  /* The connector hands off to the logos, so it steps back to let them
+     finish the sentence. */
+  .dropzone-title em {
+    font-style: normal;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.58) 0%,
+      rgba(255, 255, 255, 0.34) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
-
-  /* Reflection under the hero logo — a subtle faded mirror */
-  .hero-logo-reflection {
-    transform: scaleY(-1);
-    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 60%);
-    -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 60%);
-    pointer-events: none;
-    user-select: none;
+  .dropzone {
+    --item-w: 24rem;
+    --item-h: 7rem;
+    --plate-w: 23rem;
+    --plate-h: 8.5rem;
   }
 
-  /* Greyscale + dimmed logo style for the editor marquee */
-  .editor-marquee-logo {
-    filter: grayscale(1) brightness(0.65) contrast(1.1);
-    transition: filter 0.4s var(--ease-out);
+  /* The real pointer steps aside for the file it is carrying. */
+  @media (hover: hover) and (pointer: fine) {
+    .dropzone[data-armed='on'],
+    .dropzone[data-armed='on'] * { cursor: none; }
   }
-  .group:hover .editor-marquee-logo {
+
+  .marquee-viewport {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding-block: 2rem;
+    /* A long, multi-stop falloff. Two stops clip visibly hard at the hand-off;
+       easing the alpha through the middle makes items dissolve instead. */
+    --edge-fade: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.06) 5%,
+      rgba(0, 0, 0, 0.24) 10%,
+      rgba(0, 0, 0, 0.58) 16%,
+      rgba(0, 0, 0, 0.86) 21%,
+      #000 28%,
+      #000 72%,
+      rgba(0, 0, 0, 0.86) 79%,
+      rgba(0, 0, 0, 0.58) 84%,
+      rgba(0, 0, 0, 0.24) 90%,
+      rgba(0, 0, 0, 0.06) 95%,
+      transparent 100%
+    );
+    mask-image: var(--edge-fade);
+    -webkit-mask-image: var(--edge-fade);
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    align-items: center;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+  }
+
+  /* ——— one editor. No box, no rule, no separator. ——— */
+  .drop-item {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 1.5rem;
+    width: var(--item-w);
+    height: var(--item-h);
+    padding: 0 2rem;
+    transition: opacity 0.5s var(--ease-out);
+  }
+
+  .drop-item-logo {
+    height: 4.5rem;
+    width: 4.5rem;
+    flex: none;
+    border-radius: 16px;
+    object-fit: contain;
+    filter: grayscale(1) brightness(0.82) contrast(1.02);
+    transition:
+      filter 0.55s var(--ease-out),
+      transform 0.6s var(--ease-enter);
+  }
+
+  .drop-item-name {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.028em;
+    white-space: nowrap;
+    color: var(--color-ink-3);
+    transition: color 0.5s var(--ease-out);
+  }
+
+  /* The row falls back so the target is the only thing at full value. This is
+     the whole hover — focus by subtraction rather than by adding an effect. */
+  .dropzone[data-target='on'] .drop-item { opacity: 0.34; }
+  .dropzone[data-target='on'] .drop-item[data-drop='on'] { opacity: 1; }
+
+  .drop-item[data-drop='on'] .drop-item-logo {
     filter: grayscale(0) brightness(1) contrast(1);
+    transform: scale(1.04);
+  }
+  .drop-item[data-drop='on'] .drop-item-name { color: var(--color-ink); }
+
+  /* ——— the plate ———
+     A surface that belongs to each editor and simply rises into place under
+     it. Nothing travels between items: switching targets is a cross-fade, so
+     there is no sliding object to track with your eye. Invisible at rest, so
+     the row is still chrome-free until something is actually being carried
+     over it. Driven entirely by CSS off [data-drop] — no per-frame work. */
+  .drop-plate {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: -1;
+    width: var(--plate-w);
+    height: var(--plate-h);
+    border-radius: 22px;
+    /* Top-lit, like every other surface on the page. */
+    background:
+      radial-gradient(130% 150% at 50% 0%, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.022) 54%, transparent 78%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.052), rgba(255, 255, 255, 0.011));
+    box-shadow:
+      /* the lit top edge does the work an outline would do, without drawing a box */
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.11),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.045),
+      0 30px 60px -30px rgba(0, 0, 0, 0.95);
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 10px)) scale(0.975);
+    pointer-events: none;
+    transition:
+      opacity 0.42s var(--ease-out),
+      transform 0.6s var(--ease-enter);
+  }
+  /* Light bleeding onto the ground around the plate, so it is seated rather
+     than pasted on. Kept inside the strip's own bounds — nothing to clip. */
+  .drop-plate::before {
+    content: '';
+    position: absolute;
+    inset: -14% -8%;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(closest-side, rgba(255, 255, 255, 0.05), transparent 74%);
+  }
+  .drop-item[data-drop='on'] .drop-plate {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  /* ——— the cursor, carrying a video file ——— */
+  .drag-ghost {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 60;
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+  /* Origin sits on the arrow's tip, so the rig scales from the pointer itself. */
+  .drag-ghost-inner {
+    position: relative;
+    transform-origin: 0 0;
+  }
+
+  .drag-cursor {
+    position: absolute;
+    left: -6px;
+    top: -3px;
+    height: 28px;
+    width: 28px;
+    filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.7));
+  }
+
+  .drag-file {
+    position: absolute;
+    left: 16px;
+    top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.6rem 0.9rem 0.6rem 0.6rem;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background: linear-gradient(180deg, #131313, #0b0b0b);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.075),
+      0 22px 44px -18px rgba(0, 0, 0, 0.98),
+      0 2px 8px -2px rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+    /* Hangs from the point the cursor holds it, so movement swings it. */
+    transform-origin: 8px 0;
+    will-change: transform;
+  }
+  /* A 16:9 frame reads as video where a square icon reads as a document. */
+  .drag-file-thumb {
+    display: grid;
+    place-items: center;
+    height: 1.625rem;
+    width: 2.5rem;
+    flex: none;
+    border-radius: 5px;
+    background: linear-gradient(150deg, #313131, #171717);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09);
+    color: var(--color-ink-2);
+  }
+  .drag-file-text { display: flex; flex-direction: column; gap: 0.28rem; }
+  .drag-file-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.014em;
+    color: var(--color-ink);
+  }
+
+  .drag-file-meta {
+    display: block;
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.625rem;
+    line-height: 0.75rem;
+    letter-spacing: 0.085em;
+    text-transform: uppercase;
+    color: var(--color-ink-4);
+  }
+
+  /* Touch: no pointer, so no ghost, no plate, no hint — just the row. */
+  @media (hover: none) {
+    .drag-ghost,
+    .drop-plate { display: none; }
+  }
+
+  @media (max-width: 639px) {
+    .dropzone {
+      --item-w: 16rem;
+      --item-h: 5.25rem;
+      --plate-w: 15.25rem;
+      --plate-h: 6.5rem;
+    }
+    .marquee-viewport { padding-block: 1.5rem; }
+    .drop-item { gap: 1rem; padding: 0 1.25rem; }
+    .drop-item-logo { height: 3.25rem; width: 3.25rem; border-radius: 12px; }
+    .drop-item-name { font-size: 1.125rem; }
   }
 
   .fade-b { mask-image: linear-gradient(180deg, #000 62%, transparent 100%); -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%); }
@@ -445,11 +687,6 @@ body {
 /* ============================================================
    KEYFRAMES
    ============================================================ */
-@keyframes marquee-left {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.35; transform: scale(0.78); }
@@ -484,12 +721,6 @@ body {
   to { transform: translateY(0); }
 }
 
-/* The block opening beside line two. */
-@keyframes block-open {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-
 @keyframes ring-out {
   0% { opacity: 0.6; transform: scale(1); }
   100% { opacity: 0; transform: scale(3.6); }
@@ -497,8 +728,6 @@ body {
 
 @keyframes dash-flow { to { stroke-dashoffset: -24; } }
 
-.anim-marquee { animation: marquee-left 42s linear infinite; }
-.anim-marquee-slow { animation: marquee-left 64s linear infinite; }
 .anim-pulse-dot { animation: pulse-dot 2s var(--ease-out) infinite; }
 .anim-caret { animation: caret 1.05s steps(1) infinite; }
 .anim-scan { animation: scan-y 3.4s var(--ease-out) infinite; }
@@ -506,9 +735,6 @@ body {
 .anim-spin-slow { animation: spin-slow 22s linear infinite; }
 .anim-ring { animation: ring-out 2.4s var(--ease-out) infinite; }
 .anim-dash { animation: dash-flow 1.6s linear infinite; }
-
-.group:hover .anim-marquee,
-.group:hover .anim-marquee-slow { animation-play-state: paused; }
 
 /* Text shimmer for the wordmark */
 .shimmer {
@@ -529,16 +755,8 @@ body {
     transition-duration: 0.001ms !important;
   }
   [data-reveal] { opacity: 1; transform: none; }
+  .drag-ghost { display: none; }
   .hero-line { animation: none; }
-  .hero-block { animation: none; transform: none; }
-  .hero-mark { transform: translateY(50%); }
-}
-
-/* Touch devices never get a pointer — keep the still composition. */
-@media (hover: none) {
-  .hero-grid-hot, .hero-spot { display: none; }
-  .hero-bar::before { display: none; }
-  .hero-mark { transform: translateY(50%); }
 }
 
 @keyframes playhead {
