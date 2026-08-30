@@ -106,7 +106,11 @@ body {
   color: var(--color-ink);
   font-size: 1rem;
   letter-spacing: -0.01em;
-  overflow-x: hidden;
+  /* `clip`, not `hidden`. overflow-x:hidden makes body a scroll container,
+     which silently breaks position:sticky for everything inside it — the
+     download panel was never pinning at all. `clip` suppresses the same
+     horizontal overflow without creating a scrollport. */
+  overflow-x: clip;
 }
 
 ::selection { background: var(--color-ink); color: var(--color-bg); }
@@ -376,6 +380,318 @@ body {
   }
 
   /* ============================================================
+     FOOTER REVEAL
+     The page content is one opaque sheet stacked above the footer; the
+     footer is sticky at the viewport bottom, so the final stretch of scroll
+     slides the sheet up and uncovers it — it feels like it was always there.
+     Requires body { overflow-x: clip } (not hidden), or the sticky dies.
+     ============================================================ */
+  .page-sheet {
+    position: relative;
+    z-index: 1;
+    background: var(--color-bg);
+    /* seats the sheet's bottom edge on the footer like a lifted panel */
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9);
+  }
+
+  .footer-reveal {
+    position: sticky;
+    bottom: 0;
+    z-index: 0;
+    background: var(--color-bg-elevated);
+  }
+
+  .footer-wordmark-clip {
+    overflow: hidden;
+    margin-top: clamp(2rem, 5vw, 4rem);
+    /* the glyphs sit on the page's bottom edge, descender-less caps cropped
+       just enough to feel set INTO the edge */
+    line-height: 0.72;
+  }
+  .footer-wordmark {
+    font-family: var(--font-poppins), var(--font-geist), sans-serif;
+    font-weight: 700;
+    font-size: clamp(4rem, 15.2vw, 15rem);
+    letter-spacing: -0.02em;
+    line-height: 0.72;
+    text-align: center;
+    white-space: nowrap;
+    user-select: none;
+    /* lit from above, fading into the ground it stands on */
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    transform: translateY(0.06em);
+  }
+
+  /* ============================================================
+     DOWNLOAD FLOW — the middle beat of the page
+     A rebuild of the app's details view. Everything that changes is driven by
+     scroll progress in components/DownloadFlow.jsx; this file only describes
+     the chrome. Sized so the whole window fits one screen — the panel is
+     capped against viewport HEIGHT, not just width, because a window you have
+     to scroll to see defeats the point of it being sticky.
+     ============================================================ */
+  .dlf-window {
+    /* Two independent caps; the HEIGHT cap is the one that matters, because
+       a sticky panel taller than the viewport can never be seen whole. The
+       window is ~51em tall at its lankiest (stacked phone layout is taller,
+       handled below), and everything inside is `em`-based, so shrinking this
+       one font-size shrinks the entire window proportionally. */
+    --dlf-h: calc((100svh - var(--nav-h) - 3.5rem) / 52);
+    --dlf-w: calc((100vw - 3rem) / 62);
+    font-size: clamp(0.44rem, min(var(--dlf-h), var(--dlf-w)), 0.92rem);
+    width: 100%;
+    max-width: 62em;
+    margin-inline: auto;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-panel);
+    background:
+      radial-gradient(120% 140% at 50% 0%, rgba(255, 255, 255, 0.03), transparent 62%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.026), rgba(255, 255, 255, 0.006));
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+      0 40px 90px -40px rgba(0, 0, 0, 0.95);
+    padding: 0.9em;
+    will-change: transform;
+  }
+
+  /* ——— url bar ——— */
+  .dlf-bar { display: flex; align-items: center; gap: 0.6em; }
+  .dlf-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 3.1em;
+    display: flex;
+    align-items: center;
+    padding: 0 1em;
+    border: 1px solid var(--color-line);
+    border-radius: 0.7em;
+    background: rgba(255, 255, 255, 0.02);
+    overflow: hidden;
+  }
+  .dlf-url {
+    font-size: 0.95em;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  .dlf-placeholder { color: var(--color-ink-4); }
+  .dlf-caret {
+    display: inline-block;
+    width: 2px;
+    height: 1.05em;
+    margin-left: 1px;
+    vertical-align: -0.18em;
+    background: var(--color-ink-2);
+    animation: caret 1.05s steps(1) infinite;
+  }
+  .dlf-get {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    height: 3.1em;
+    padding: 0 1.2em;
+    border-radius: 0.7em;
+    font-size: 0.95em;
+    font-weight: 500;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.16);
+    color: var(--color-ink-2);
+    transition: background-color 0.45s var(--ease-out), color 0.45s var(--ease-out);
+  }
+  .dlf-get[data-live='on'] { background: var(--color-ink); color: var(--color-bg); }
+  .dlf-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.4em;
+    height: 2.4em;
+    flex: none;
+    color: var(--color-ink-2);
+  }
+  /* The download tab carries a dot while something is in flight. */
+  .dlf-dot {
+    position: absolute;
+    top: 0.3em;
+    right: 0.35em;
+    width: 0.42em;
+    height: 0.42em;
+    border-radius: 999px;
+    background: var(--color-ink);
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out);
+  }
+  .dlf-dot[data-on='on'] { opacity: 1; }
+
+  /* ——— details view ——— */
+  .dlf-body {
+    margin-top: 0.9em;
+    padding: 1.4em;
+    border: 1px solid var(--color-line-subtle);
+    border-radius: 0.85em;
+    background: rgba(255, 255, 255, 0.012);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.45s var(--ease-out), transform 0.55s var(--ease-enter);
+  }
+  .dlf-body[data-ready='on'] { opacity: 1; transform: none; }
+
+  .dlf-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 1.05em;
+    color: var(--color-ink-2);
+    margin-bottom: 1.2em;
+  }
+
+  .dlf-grid { display: grid; grid-template-columns: 1fr; gap: 1.4em; }
+  @media (max-width: 899px) {
+    .dlf-window { --dlf-h: calc((100svh - var(--nav-h) - 3.5rem) / 84); }
+    /* the description is the piece that will not fit stacked — cap it */
+    .dlf-desc { max-height: 16em; flex: none; }
+  }
+  @media (min-width: 900px) {
+    .dlf-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
+  }
+  .dlf-right { display: flex; flex-direction: column; min-height: 0; }
+
+  .dlf-thumb {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 0.7em;
+    /* Also the fallback if the poster is missing. */
+    background: linear-gradient(180deg, #16323a 0%, #0e2027 55%, #0a1417 100%);
+  }
+  .dlf-thumb-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  .dlf-selects { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65em; margin-top: 1em; }
+  .dlf-select {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5em;
+    height: 3em;
+    padding: 0 0.9em;
+    border: 1px solid var(--color-line);
+    border-radius: 0.6em;
+    background: rgba(255, 255, 255, 0.022);
+    font-size: 0.95em;
+    color: var(--color-ink-2);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .dlf-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    height: 3em;
+    margin-top: 0.65em;
+    border-radius: 0.6em;
+    background: rgba(255, 255, 255, 0.055);
+    font-size: 1em;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+  .dlf-btn-cancel { background: #a11d1d; color: #fff; }
+
+  .dlf-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5em;
+    margin-top: 1.2em;
+    padding: 0.8em 0.5em;
+    border: 1px solid var(--color-line-subtle);
+    border-radius: 0.6em;
+    background: rgba(255, 255, 255, 0.012);
+    text-align: center;
+  }
+  .dlf-stat-k {
+    font-size: 0.68em;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-ink-4);
+  }
+  .dlf-stat-v {
+    margin-top: 0.4em;
+    font-size: 0.98em;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dlf-prog {
+    margin-top: 0.65em;
+    padding: 0.85em 1em;
+    border: 1px solid var(--color-line-subtle);
+    border-radius: 0.6em;
+    background: rgba(255, 255, 255, 0.012);
+  }
+  .dlf-prog-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5em;
+    font-size: 0.92em;
+    color: var(--color-ink-2);
+  }
+  .dlf-prog-num { color: var(--color-ink-4); font-variant-numeric: tabular-nums; }
+  .dlf-track {
+    height: 0.42em;
+    margin-top: 0.7em;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.09);
+    overflow: hidden;
+  }
+  .dlf-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--color-ink);
+    transition: width 0.12s linear, background-color 0.4s var(--ease-out);
+  }
+  .dlf-fill[data-done='on'] { background: var(--color-ok); }
+
+  .dlf-title {
+    font-size: 1.3em;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: var(--color-ink);
+  }
+  /* Fills the column and scrolls inside itself, exactly like the app. */
+  .dlf-desc {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: 0.9em;
+    padding: 1.1em;
+    border: 1px solid var(--color-line-subtle);
+    border-radius: 0.7em;
+    background: rgba(255, 255, 255, 0.012);
+    font-size: 0.95em;
+    line-height: 1.65;
+    color: var(--color-ink-2);
+    display: flex;
+    flex-direction: column;
+    gap: 1.1em;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+
+  /* The mono voice for everything inside the window. */
+  .dlf-url,
+  .dlf-stat-k,
+  .dlf-stat-v,
+  .dlf-prog-num {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+  }
+
+  /* ============================================================
      DROP ZONE — "drops straight into"
 
      A uniform row of editor logos that doubles as a drag-and-drop target.
@@ -389,54 +705,28 @@ body {
          contrast against the near-black ground, the same language the
          .panel composite uses elsewhere on the page.
      ============================================================ */
-  /* Display type, lit from above like every other surface on the page: the
-     gradient is the same top-light the panel and the plate use, just clipped
-     to the glyphs. The tracking is pushed past the section scale — at this
-     size the letters can carry it, and it is the one place the type gets to
-     read as a mark rather than as a heading. */
+  /* Display type. Solid rather than gradient-filled: background-clip:text is
+     bounded by the line box, so at this line-height the descenders on 'g' and
+     'y' fell outside the painted area and got cut. */
   .dropzone-title {
     font-size: clamp(2.25rem, 5.4vw, 4.5rem);
-    line-height: 0.98;
-    letter-spacing: -0.05em;
+    line-height: 1.12;
+    letter-spacing: -0.045em;
     font-weight: 500;
-    background: linear-gradient(
-      180deg,
-      #ffffff 0%,
-      #ffffff 32%,
-      rgba(255, 255, 255, 0.72) 72%,
-      rgba(255, 255, 255, 0.55) 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    /* a hair of bloom, so it sits in the dark rather than on it */
-    filter: drop-shadow(0 0 48px rgba(255, 255, 255, 0.1));
+    color: var(--color-ink);
   }
-  /* The connector hands off to the logos, so it steps back to let them
+  /* The connector hands off to the logos, so it steps back and lets them
      finish the sentence. */
   .dropzone-title em {
     font-style: normal;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.58) 0%,
-      rgba(255, 255, 255, 0.34) 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--color-ink-3);
   }
 
   .dropzone {
-    --item-w: 24rem;
-    --item-h: 7rem;
-    --plate-w: 23rem;
-    --plate-h: 8.5rem;
-  }
-
-  /* The real pointer steps aside for the file it is carrying. */
-  @media (hover: hover) and (pointer: fine) {
-    .dropzone[data-armed='on'],
-    .dropzone[data-armed='on'] * { cursor: none; }
+    --item-w: 27rem;
+    --item-h: 8rem;
+    --plate-w: 26rem;
+    --plate-h: 9.5rem;
   }
 
   .marquee-viewport {
@@ -453,8 +743,8 @@ body {
       rgba(0, 0, 0, 0.24) 10%,
       rgba(0, 0, 0, 0.58) 16%,
       rgba(0, 0, 0, 0.86) 21%,
-      #000 28%,
-      #000 72%,
+      #000 30%,
+      #000 70%,
       rgba(0, 0, 0, 0.86) 79%,
       rgba(0, 0, 0, 0.58) 84%,
       rgba(0, 0, 0, 0.24) 90%,
@@ -489,19 +779,17 @@ body {
   }
 
   .drop-item-logo {
-    height: 4.5rem;
-    width: 4.5rem;
+    height: 5rem;
+    width: 5rem;
     flex: none;
     border-radius: 16px;
     object-fit: contain;
-    filter: grayscale(1) brightness(0.82) contrast(1.02);
-    transition:
-      filter 0.55s var(--ease-out),
-      transform 0.6s var(--ease-enter);
+    filter: grayscale(1) brightness(0.86) contrast(1.02);
+    transition: filter 0.55s var(--ease-out);
   }
 
   .drop-item-name {
-    font-size: 1.5rem;
+    font-size: 1.6875rem;
     font-weight: 500;
     line-height: 1.1;
     letter-spacing: -0.028em;
@@ -515,9 +803,11 @@ body {
   .dropzone[data-target='on'] .drop-item { opacity: 0.34; }
   .dropzone[data-target='on'] .drop-item[data-drop='on'] { opacity: 1; }
 
+  /* Colour arrives only on the target, and it arrives without moving —
+     the plate underneath and the rest of the row stepping back carry the
+     rest of the state, so nothing pops. */
   .drop-item[data-drop='on'] .drop-item-logo {
     filter: grayscale(0) brightness(1) contrast(1);
-    transform: scale(1.04);
   }
   .drop-item[data-drop='on'] .drop-item-name { color: var(--color-ink); }
 
@@ -582,25 +872,16 @@ body {
     transform-origin: 0 0;
   }
 
-  .drag-cursor {
-    position: absolute;
-    left: -6px;
-    top: -3px;
-    height: 28px;
-    width: 28px;
-    filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.7));
-  }
-
   .drag-file {
     position: absolute;
-    left: 16px;
-    top: 18px;
+    left: 18px;
+    top: 20px;
     display: flex;
     align-items: center;
-    gap: 0.7rem;
-    padding: 0.6rem 0.9rem 0.6rem 0.6rem;
+    gap: 0.85rem;
+    padding: 0.7rem 1.05rem 0.7rem 0.7rem;
     border: 1px solid var(--color-line);
-    border-radius: 12px;
+    border-radius: 14px;
     background: linear-gradient(180deg, #131313, #0b0b0b);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.075),
@@ -611,21 +892,22 @@ body {
     transform-origin: 8px 0;
     will-change: transform;
   }
-  /* A 16:9 frame reads as video where a square icon reads as a document. */
+  /* The poster of the file being carried, so the drop reads as *this* video
+     landing in that app rather than a generic document. */
   .drag-file-thumb {
-    display: grid;
-    place-items: center;
-    height: 1.625rem;
-    width: 2.5rem;
+    position: relative;
+    height: 2.25rem;
+    width: 4rem;
     flex: none;
-    border-radius: 5px;
-    background: linear-gradient(150deg, #313131, #171717);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09);
-    color: var(--color-ink-2);
+    overflow: hidden;
+    border-radius: 6px;
+    background: #171717;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
   }
-  .drag-file-text { display: flex; flex-direction: column; gap: 0.28rem; }
+  .drag-file-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .drag-file-text { display: flex; flex-direction: column; gap: 0.34rem; }
   .drag-file-name {
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     font-weight: 500;
     line-height: 1;
     letter-spacing: -0.014em;
@@ -635,12 +917,35 @@ body {
   .drag-file-meta {
     display: block;
     font-family: var(--font-geist-mono), ui-monospace, monospace;
-    font-size: 0.625rem;
-    line-height: 0.75rem;
+    font-size: 0.6875rem;
+    line-height: 0.85rem;
     letter-spacing: 0.085em;
     text-transform: uppercase;
     color: var(--color-ink-4);
   }
+
+  /* The + that says "this drops in here" — only while an app is locked. */
+  .drag-file-badge {
+    position: absolute;
+    right: -9px;
+    top: -9px;
+    display: grid;
+    place-items: center;
+    height: 1.25rem;
+    width: 1.25rem;
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: #0a0a0a;
+    opacity: 0;
+    transform: scale(0.5);
+    box-shadow:
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.14),
+      0 4px 12px -3px rgba(0, 0, 0, 0.9);
+    transition:
+      opacity 0.3s var(--ease-out),
+      transform 0.45s var(--ease-enter);
+  }
+  .drag-ghost[data-lock='on'] .drag-file-badge { opacity: 1; transform: scale(1); }
 
   /* Touch: no pointer, so no ghost, no plate, no hint — just the row. */
   @media (hover: none) {
@@ -715,6 +1020,7 @@ body {
 
 @keyframes spin-slow { to { transform: rotate(360deg); } }
 
+
 /* Hero line rising into its clipping slot. */
 @keyframes line-rise {
   from { transform: translateY(105%); }
@@ -727,6 +1033,7 @@ body {
 }
 
 @keyframes dash-flow { to { stroke-dashoffset: -24; } }
+
 
 .anim-pulse-dot { animation: pulse-dot 2s var(--ease-out) infinite; }
 .anim-caret { animation: caret 1.05s steps(1) infinite; }

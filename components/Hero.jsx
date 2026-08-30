@@ -89,7 +89,7 @@ export function Hero() {
             <span className="masker block">
               <span className="hero-line block" style={{ '--d': '0ms' }}>
                 YouTube{' '}
-                <span className="relative inline-block mx-0.5 px-2">
+                <span className="relative mx-0.5 inline-block px-2">
                   <span>downloads</span>
                   <motion.span
                     className="bg-ink text-bg absolute inset-0 overflow-hidden rounded-[8px] whitespace-nowrap"
@@ -103,6 +103,7 @@ export function Hero() {
                 ,
               </span>
             </span>
+
             <span className="masker block">
               <span className="hero-line block" style={{ '--d': '150ms' }}>
                 finally done right.

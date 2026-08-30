@@ -10,9 +10,9 @@ export function Container({ className, children }) {
 /** Vertical rhythm wrapper. `beat` picks the spacing tier. */
 export function Section({ id, beat = 'section', className, children }) {
   const pad = {
-    chapter: 'py-20 sm:py-[calc(var(--spacing-chapter)/2)]',
-    section: 'py-16 sm:py-[calc(var(--spacing-section)/2)]',
-    sub: 'py-12 sm:py-[calc(var(--spacing-sub)/2)]',
+    chapter: 'py-12 sm:py-16',
+    section: 'py-10 sm:py-14',
+    sub: 'py-8 sm:py-10',
   }[beat];
 
   return (

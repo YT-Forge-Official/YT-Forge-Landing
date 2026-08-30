@@ -30,8 +30,13 @@ export function Footer() {
   ];
 
   return (
-    <footer className="border-line-subtle border-t">
-      <Container className="py-14">
+    /*
+      The footer sits UNDER the page. It is sticky at bottom:0 with the whole
+      page-sheet stacked above it, so the last stretch of scrolling slides the
+      page up like a sheet of paper and the footer is simply already there.
+    */
+    <footer className="footer-reveal border-line-subtle border-t">
+      <Container className="pt-14 pb-0">
         <div className="grid grid-cols-2 gap-10 sm:grid-cols-4 lg:gap-14">
           <div className="col-span-2 sm:col-span-1">
             <Logo />
@@ -88,6 +93,12 @@ export function Footer() {
           </div>
         </div>
       </Container>
+
+      {/* The wordmark the page lifts off of. Clipped at the baseline so it
+          reads as carved into the bottom edge rather than typeset above it. */}
+      <div aria-hidden className="footer-wordmark-clip">
+        <p className="footer-wordmark">YT-FORGE</p>
+      </div>
     </footer>
   );
 }

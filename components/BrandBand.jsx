@@ -14,9 +14,9 @@ import { Container } from './ui';
  *     the measured half-width — a pixel-exact repeat, no seam. It glides to a
  *     near-stop while the cursor is in the section and back up on the way out.
  *
- *  2. The cursor. It carries a video file and does nothing else — no magnet,
- *     no lock, no snap. The file trails on its own spring and swings from the
- *     point it is held, and that is the entire motion budget.
+ *  2. The file. It trails the pointer on its own spring and swings as it
+ *     moves — no magnet, no lock, no snap. The native cursor is never hidden
+ *     or replaced; the file simply travels with it.
  *
  * The loop also reports which editor is nearest, but only as a class toggle:
  * that editor's plate fades up and the rest of the row falls back, both in
@@ -24,7 +24,7 @@ import { Container } from './ui';
  * travelling object competing with the pointer for your attention.
  */
 
-const SPEED = 58; // px/s at full tilt
+const SPEED = 88; // px/s at full tilt
 const HYSTERESIS = 34; // px a rival must win by before it takes the highlight
 
 /** Frame-rate independent smoothing. */
@@ -131,6 +131,7 @@ export function BrandBand() {
       if (lockedNode === node) return;
       if (lockedNode) lockedNode.dataset.drop = 'off';
       if (node) node.dataset.drop = 'on';
+      ghost.dataset.lock = node ? 'on' : 'off';
       section.dataset.target = node ? 'on' : 'off';
       lockedNode = node;
     };
@@ -204,7 +205,7 @@ export function BrandBand() {
 
       ghost.style.opacity = vis.toFixed(3);
       ghost.style.transform = `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`;
-      inner.style.transform = `scale(${(0.78 + 0.22 * smooth(vis)).toFixed(3)})`;
+      inner.style.transform = `scale(${(0.82 + 0.18 * smooth(vis)).toFixed(3)})`;
       chip.style.transform = `translate3d(${lag.toFixed(2)}px, 0, 0) rotate(${tilt.toFixed(2)}deg)`;
 
       raf = requestAnimationFrame(render);
@@ -246,7 +247,7 @@ export function BrandBand() {
           tilt = 0;
         }
         visTarget = 1;
-        mulTarget = reduce ? 0 : 0.14;
+        mulTarget = reduce ? 0 : 0.34;
         section.dataset.armed = 'on';
       }
     };
@@ -293,20 +294,20 @@ export function BrandBand() {
   return (
     <section
       ref={sectionRef}
-      className="dropzone relative overflow-hidden py-16 sm:py-20"
+      className="dropzone relative overflow-hidden pt-12 pb-4 sm:pt-16 sm:pb-5"
       data-armed="off"
       data-target="off"
     >
       <Container>
         <div className="rule" />
-        <h2 className="dropzone-title mt-9 text-center sm:mt-11" data-reveal>
-          Drops straight <em>into</em>
+        <h2 className="dropzone-title mt-7 text-center sm:mt-9" data-reveal>
+          Drop straight <em>into</em>
         </h2>
       </Container>
 
       <div
         ref={viewportRef}
-        className="marquee-viewport mt-8 sm:mt-10"
+        className="marquee-viewport mt-6 sm:mt-8"
         data-reveal
         style={{ '--reveal-delay': '140ms' }}
       >
@@ -328,7 +329,7 @@ export function BrandBand() {
                 alt=""
                 width={128}
                 height={128}
-                sizes="72px"
+                sizes="80px"
                 className="drop-item-logo"
               />
               <span className="drop-item-name">{editor.name}</span>
@@ -338,35 +339,34 @@ export function BrandBand() {
       </div>
 
       <Container>
-        <div className="rule mt-9 sm:mt-11" />
+        <div className="rule mt-7 sm:mt-9" />
       </Container>
 
-      {/* the cursor carrying a video file — mouse only, above everything */}
-      <div ref={ghostRef} className="drag-ghost" aria-hidden>
+      {/* the file being carried — it rides alongside the real cursor,
+          which is left alone */}
+      <div ref={ghostRef} className="drag-ghost" data-lock="off" aria-hidden>
         <div ref={innerRef} className="drag-ghost-inner">
           <div ref={chipRef} className="drag-file">
             <span className="drag-file-thumb">
-              <svg viewBox="0 0 24 24" fill="none" className="size-3">
-                <path d="M9.5 7.6v8.8L17 12 9.5 7.6Z" fill="currentColor" />
-              </svg>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/costa-rica.jpg" alt="" />
             </span>
             <span className="drag-file-text">
-              <span className="drag-file-name">clip_2160p.mp4</span>
+              <span className="drag-file-name">Costa Rica 4K.mp4</span>
               <span className="drag-file-meta">H.264 · AAC</span>
+            </span>
+            <span className="drag-file-badge" aria-hidden>
+              <svg viewBox="0 0 24 24" className="size-2.5">
+                <path
+                  d="M12 5v14M5 12h14"
+                  stroke="currentColor"
+                  strokeWidth="3.4"
+                  strokeLinecap="round"
+                />
+              </svg>
             </span>
           </div>
 
-          {/* the pointer itself — white, with a dark keyline so it holds
-              against both the logos and the ground */}
-          <svg viewBox="0 0 24 24" className="drag-cursor">
-            <path
-              d="M5 2.4 5 19.9 9.7 15.6 12.4 21.7 15.1 20.4 12.5 14.6 18.7 14.6Z"
-              fill="#fff"
-              stroke="rgba(0,0,0,0.55)"
-              strokeWidth="1.1"
-              strokeLinejoin="round"
-            />
-          </svg>
         </div>
       </div>
     </section>

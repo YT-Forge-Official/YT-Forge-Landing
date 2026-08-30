@@ -20,7 +20,7 @@ export function Features() {
       <Container>
         <SectionHead eyebrow="Features" title="Built with editors in mind." />
 
-        <div className="mt-14 grid grid-cols-1 gap-3 lg:grid-cols-12">
+        <div className="mt-10 grid grid-cols-1 gap-3 lg:grid-cols-12">
           <Card
             span={7}
             n="01"
@@ -42,9 +42,31 @@ export function Features() {
             <ResolutionLadder />
           </Card>
 
+          {/* Convert and speed share the narrow half: neither needs a full column
+              of height, and stacking them leaves the queue room to breathe. */}
+          <div className="flex flex-col gap-3 lg:col-span-5">
+            <Card
+              n="03"
+              icon={RefreshCw}
+              title="Convert on the fly"
+              body="Re-encode VP9 or AV1 to H.264 without leaving the app."
+              delay={80}
+            >
+              <ConvertStrip />
+            </Card>
+
+            <Card
+              n="04"
+              icon={Zap}
+              title="Super fast downloads"
+              body="Straight from the source to your disk, with nothing sitting in between. The only limit is your own connection."
+              delay={160}
+            />
+          </div>
+
           <Card
-            span={5}
-            n="03"
+            span={7}
+            n="05"
             icon={ListVideo}
             title="Playlists, queued"
             body="Paste a playlist, pick a folder, walk away."
@@ -53,47 +75,26 @@ export function Features() {
           </Card>
 
           <Card
-            span={4}
-            n="04"
-            icon={RefreshCw}
-            title="Convert on the fly"
-            body="Re-encode VP9 or AV1 to H.264 in the app."
-            delay={80}
-          >
-            <ConvertStrip />
-          </Card>
-
-          <Card
-            span={3}
-            n="05"
-            icon={Zap}
-            title="Fast"
-            body="Parallel chunks, not one thin stream."
-            delay={160}
-          >
-            <ChunkLanes />
-          </Card>
-
-          <Card
             span={7}
             n="06"
             icon={KeyRound}
             title="Sign in with Google"
-            body="Members-only, age-gated and purchased videos need your account. Sign in and YT-FORGE pulls what you already have access to."
+            body="Age-restricted and members-only videos need an account to reach. Sign in once and they download like anything else."
           >
-            <SignInRow />
+            <div className="mt-auto flex items-center gap-3 pt-7">
+              <GoogleMark />
+              <span className="text-small text-ink-3">Google account</span>
+            </div>
           </Card>
 
           <Card
             span={5}
             n="07"
             icon={ArrowUp}
-            title="Always current"
-            body="yt-dlp updates itself on launch, so downloads keep working when YouTube changes."
+            title="yt-dlp updates itself"
+            body="The engine refreshes every time the app opens, so a change on YouTube’s side never leaves you with a broken download."
             delay={80}
-          >
-            <EngineRow />
-          </Card>
+          />
         </div>
       </Container>
     </Section>
@@ -117,7 +118,7 @@ function Card({ span, n, icon: Icon, title, body, delay, children }) {
     <div
       data-reveal
       style={delay ? { '--reveal-delay': `${delay}ms` } : undefined}
-      className={`panel panel-interactive flex flex-col overflow-hidden p-6 sm:p-7 ${cols}`}
+      className={`panel panel-interactive flex flex-1 flex-col overflow-hidden p-6 sm:p-7 ${cols ?? ''}`}
     >
       <div className="flex items-center justify-between">
         <span className="border-line-subtle flex size-9 items-center justify-center rounded-[var(--radius-control)] border bg-white/[0.025]">
@@ -212,54 +213,63 @@ function ResolutionLadder() {
 }
 
 /**
- * The playlist view as it actually appears in the app: a header with the
- * playlist title and its completed count, an overall bar, then one row per
- * video — done, downloading, queued.
+ * The playlist view, mirroring the app: header with the playlist title and
+ * its running count, Pause and Cancel top right, an overall bar, then one
+ * row per video — done, downloading (with its own stats), queued.
+ * Real videos, so every thumbnail matches its title.
  */
 function PlaylistQueue() {
   return (
-    <div className="border-line-subtle mt-auto overflow-hidden rounded-[var(--radius-card)] border bg-black/40 pt-3.5 pb-1">
+    <div className="border-line-subtle mt-8 overflow-hidden rounded-[var(--radius-card)] border bg-black/40 p-4">
       {/* header */}
-      <div className="flex items-center gap-2.5 px-3.5">
-        <ChevronLeft className="text-ink-4 size-3.5 shrink-0" strokeWidth={2} />
-        <div className="min-w-0 flex-1">
-          <p className="text-small truncate font-medium">Maximum Likelihood</p>
-          <p className="text-meta text-ink-4 mt-1 font-[family-name:var(--font-geist-mono)] tracking-normal">
-            1 of 6 videos completed
+      <div className="flex items-center gap-3">
+        <ChevronLeft className="text-ink-4 size-4 shrink-0" strokeWidth={2} />
+        <div className="min-w-0 flex-1 py-0.5">
+          <p className="text-card truncate font-medium">4K Test Footage</p>
+          <p className="text-meta text-ink-4 mt-1.5 font-[family-name:var(--font-geist-mono)] tracking-normal">
+            1 of 3 videos completed
           </p>
         </div>
-        <span className="text-meta text-ink-3 hidden items-center gap-1 sm:flex">
-          <Pause className="size-2.5" strokeWidth={2.4} />
+        <span className="text-small text-ink-2 hidden items-center gap-1.5 sm:flex">
+          <Pause className="size-3" strokeWidth={2.4} />
           Pause
         </span>
-        <span className="text-meta flex items-center gap-1 rounded-[4px] bg-[#b3261e] px-1.5 py-1 text-white">
-          <X className="size-2.5" strokeWidth={2.6} />
+        <span className="text-small flex items-center gap-1.5 rounded-[6px] bg-[#b3261e] px-3 py-1.5 font-medium text-white">
+          <X className="size-3" strokeWidth={2.6} />
           Cancel
         </span>
       </div>
 
       {/* overall progress */}
-      <div className="border-line-subtle mx-3.5 mt-3.5 rounded-[8px] border bg-white/[0.02] px-3 py-2.5">
+      <div className="border-line-subtle mt-4 rounded-[8px] border bg-white/[0.02] px-3.5 py-3">
         <div className="flex items-baseline justify-between">
-          <span className="text-meta text-ink-2 tracking-normal">Downloading 2 of 6</span>
-          <span className="text-meta text-ink-3 font-[family-name:var(--font-geist-mono)]">26%</span>
+          <span className="text-small text-ink-2">Downloading 2 of 3</span>
+          <span className="text-meta text-ink-3 font-[family-name:var(--font-geist-mono)]">44%</span>
         </div>
-        <Bar pct={26} className="mt-2" />
+        <Bar pct={44} className="mt-2" />
       </div>
 
       {/* rows */}
-      <div className="mt-1.5 space-y-1 px-2 pb-2">
-        <Row title="Likelihood vs Probability" meta="720p · 803.06 KB" dur="0:30" state="done" />
+      <div className="mt-4 space-y-1.5">
         <Row
-          title="Maximum Likelihood For the Normal Distribution"
-          meta="720p · 25.58 MB"
-          dur="19:50"
+          thumb="/thumb-peru.jpg"
+          title="Peru 8K HDR 60FPS (FUHD)"
+          meta="4320p60 · 5.94 GB"
+          dur="9:54"
+          state="done"
+        />
+        <Row
+          thumb="/thumb-nepal.jpg"
+          title="Nepal In 4K — Scenic Relaxation Film"
+          meta="2160p · 1.62 GB"
+          dur="1:02:40"
           state="active"
         />
         <Row
-          title="Maximum Likelihood for the Binomial Distribution"
-          meta="720p60 · 19 MB"
-          dur="11:24"
+          thumb="/thumb-bunny.jpg"
+          title="Big Buck Bunny 60fps 4K — Blender"
+          meta="2160p60 · 673 MB"
+          dur="10:34"
           state="queued"
         />
       </div>
@@ -267,18 +277,19 @@ function PlaylistQueue() {
   );
 }
 
-function Row({ title, meta, dur, state }) {
+function Row({ thumb, title, meta, dur, state }) {
   const active = state === 'active';
 
   return (
     <div
-      className={`rounded-[8px] px-2.5 py-2 ${
-        active ? 'border-line border bg-white/[0.03]' : ''
+      className={`rounded-[10px] px-3 py-2.5 ${
+        active ? 'border-line border bg-white/[0.03]' : '-mx-3 px-3'
       }`}
     >
-      <div className="flex items-center gap-2.5">
-        <span className="relative h-[26px] w-[46px] shrink-0 overflow-hidden rounded-[4px] bg-white/[0.07]">
-          <span className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.09),transparent_60%)]" />
+      <div className="flex items-center gap-3">
+        <span className="relative h-[30px] w-[53px] shrink-0 overflow-hidden rounded-[4px] bg-white/[0.07]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={thumb} alt="" className="h-full w-full object-cover" />
           <span className="text-ink-2 absolute right-0.5 bottom-0.5 rounded-[2px] bg-black/75 px-1 font-[family-name:var(--font-geist-mono)] text-[8px] leading-[1.4]">
             {dur}
           </span>
@@ -288,38 +299,52 @@ function Row({ title, meta, dur, state }) {
           <p className={`text-small truncate ${state === 'done' ? 'text-ink-3' : 'text-ink'}`}>
             {title}
           </p>
-          <p className="text-meta text-ink-4 mt-0.5 font-[family-name:var(--font-geist-mono)]">
+          <p className="text-meta text-ink-4 mt-1 font-[family-name:var(--font-geist-mono)]">
             {meta}
           </p>
         </div>
 
         {state === 'done' ? (
-          <span className="border-ok/60 flex size-4 shrink-0 items-center justify-center rounded-full border">
+          <span className="border-ok/60 flex size-[18px] shrink-0 items-center justify-center rounded-full border">
             <Check className="text-ok size-2.5" strokeWidth={3} />
           </span>
         ) : null}
         {state === 'queued' ? <span className="eyebrow shrink-0">Queued</span> : null}
+        {active ? (
+          <span className="text-small text-ink-3 flex shrink-0 items-center gap-1.5">
+            <SkipForward className="size-3" strokeWidth={2.4} />
+            Skip
+          </span>
+        ) : null}
       </div>
 
       {active ? (
         <>
-          <div className="border-line-subtle mt-2 rounded-[6px] border bg-white/[0.02] px-2.5 py-2">
+          {/* the in-flight item carries its own speed / elapsed / remaining */}
+          <div className="border-line-subtle mt-2.5 grid grid-cols-3 gap-2 rounded-[8px] border bg-white/[0.015] px-2 py-2.5 text-center">
+            {[
+              ['Speed', '10.42 MB/s'],
+              ['Elapsed', '00:58'],
+              ['Time left', '01:34'],
+            ].map(([k, v]) => (
+              <div key={k}>
+                <p className="text-ink-4 font-[family-name:var(--font-geist-mono)] text-[9px] tracking-[0.09em] uppercase">
+                  {k}
+                </p>
+                <p className="text-small text-ink mt-1 font-[family-name:var(--font-geist-mono)] tabular-nums">
+                  {v}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="border-line-subtle mt-2 rounded-[8px] border bg-white/[0.015] px-3 py-2.5">
             <div className="flex items-baseline justify-between">
-              <span className="text-meta text-ink-2 tracking-normal">Downloading…</span>
+              <span className="text-small text-ink-2">Downloading…</span>
               <span className="text-meta text-ink-4 font-[family-name:var(--font-geist-mono)]">
-                55.4%
+                38.2% — 634.5 MB / 1.62 GB
               </span>
             </div>
-            <Bar pct={55.4} className="mt-1.5" />
-          </div>
-          <div className="mt-1.5 flex items-center justify-between">
-            <span className="text-meta text-ink-4 font-[family-name:var(--font-geist-mono)]">
-              10.42 MB/s
-            </span>
-            <span className="text-meta text-ink-3 flex items-center gap-1">
-              <SkipForward className="size-2.5" strokeWidth={2.4} />
-              Skip
-            </span>
+            <Bar pct={38.2} className="mt-2" />
           </div>
         </>
       ) : null}
@@ -374,65 +399,27 @@ function Box({ label, sub, lit }) {
   );
 }
 
-/** Four lanes at four fills — one stream would be one lane. */
-function ChunkLanes() {
-  const lanes = [100, 88, 71, 54];
-
+/** Google's four-colour mark. */
+function GoogleMark() {
   return (
-    <div className="mt-auto pt-7">
-      <div className="space-y-2">
-        {lanes.map((pct, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <span className="text-meta text-ink-4 w-3 font-[family-name:var(--font-geist-mono)]">
-              {i + 1}
-            </span>
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.08]">
-              <div className="bg-ink/85 h-full rounded-full" style={{ width: `${pct}%` }} />
-            </div>
-          </div>
-        ))}
-      </div>
-      <p className="text-meta text-ink-4 mt-4 font-[family-name:var(--font-geist-mono)]">
-        4 chunks · one file
-      </p>
-    </div>
+    <svg viewBox="0 0 48 48" className="size-6 shrink-0" aria-hidden>
+      <path
+        fill="#4285F4"
+        d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24s.85 6.91 2.34 9.88l7.35-5.7z"
+      />
+      <path
+        fill="#EA4335"
+        d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"
+      />
+    </svg>
   );
 }
 
-function SignInRow() {
-  return (
-    <div className="mt-auto flex flex-col gap-4 pt-7 sm:flex-row sm:items-center sm:justify-between">
-      <span className="border-line-strong inline-flex h-10 shrink-0 items-center gap-2.5 self-start rounded-[var(--radius-control)] border bg-white/[0.03] px-4">
-        <span className="bg-ink text-bg flex size-4 items-center justify-center rounded-full font-[family-name:var(--font-geist-mono)] text-[10px] font-semibold">
-          G
-        </span>
-        <span className="text-small font-medium">Continue with Google</span>
-      </span>
-
-      <div className="flex flex-wrap gap-1.5">
-        {['Members-only', 'Age-restricted', 'Purchased'].map((t) => (
-          <span
-            key={t}
-            className="text-meta text-ink-3 border-line-subtle rounded-[var(--radius-pill)] border px-2.5 py-1 font-[family-name:var(--font-geist-mono)]"
-          >
-            {t}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function EngineRow() {
-  return (
-    <div className="border-line-subtle mt-auto flex items-center gap-4 rounded-[var(--radius-control)] border bg-white/[0.015] px-4 py-3.5">
-      <span className="text-small text-ink font-[family-name:var(--font-geist-mono)]">yt-dlp</span>
-      <span className="bg-line-subtle h-4 w-px" />
-      <span className="text-small text-ink-3 font-[family-name:var(--font-geist-mono)]">ffmpeg</span>
-      <span className="text-meta text-ink-4 ml-auto flex items-center gap-1.5 font-[family-name:var(--font-geist-mono)]">
-        <ArrowUp className="size-3" strokeWidth={2.4} />
-        Checked on launch
-      </span>
-    </div>
-  );
-}

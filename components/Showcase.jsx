@@ -10,11 +10,11 @@ const CALLOUTS = [
 
 export function Showcase() {
   return (
-    <Section beat="chapter" className="overflow-hidden">
+    <Section beat="section" className="overflow-hidden !pt-6 sm:!pt-8">
       <Container>
-        <SectionHead eyebrow="The app" title="Everything on one screen." />
+        <SectionHead title="A clean, minimal UI." />
 
-        <div className="mt-14 grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-12">
+        <div className="mt-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:items-stretch lg:gap-14">
           <div className="lg:col-span-7" data-reveal>
             <AppWindow
               src="/screenshot1.png"
@@ -22,19 +22,28 @@ export function Showcase() {
             />
           </div>
 
-          <div className="lg:col-span-5 lg:pt-4" data-reveal style={{ '--reveal-delay': '120ms' }}>
-            <dl>
-              {CALLOUTS.map((c, i) => (
-                <div key={c.k} className="border-line-subtle border-t py-5 first:border-t-0 first:pt-0">
-                  <dt className="flex items-center gap-2.5">
-                    <span className="eyebrow">{String(i + 1).padStart(2, '0')}</span>
-                    <span className="text-card font-medium">{c.k}</span>
-                  </dt>
-                  <dd className="text-body text-ink-2 mt-2 max-w-[42ch]">{c.v}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
+          {/*
+            One aligned system: a fixed number column, a hairline between each
+            row, equal breathing room above and below the text block — the
+            list reads as a single instrument panel, not four stray notes.
+          */}
+          {/* The rows split the window's full height between them, so the two
+              columns read as one composed block rather than a tall image with
+              a short list floating beside it. */}
+          <dl className="flex flex-col lg:col-span-5" data-reveal style={{ '--reveal-delay': '120ms' }}>
+            {CALLOUTS.map((c, i) => (
+              <div
+                key={c.k}
+                className="border-line-subtle grid flex-1 grid-cols-[3rem_1fr] content-center items-baseline border-t py-5 first:border-t-0 first:pt-0 last:pb-0"
+              >
+                <dt className="contents">
+                  <span className="eyebrow">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="text-card font-medium">{c.k}</span>
+                </dt>
+                <dd className="text-body text-ink-2 col-start-2 mt-2 max-w-[40ch]">{c.v}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </Container>
     </Section>
