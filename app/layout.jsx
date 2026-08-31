@@ -60,8 +60,21 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${geist.variable} ${geistMono.variable} ${poppins.variable}`}>
-      <body className="font-[family-name:var(--font-geist)] antialiased">{children}</body>
+    /*
+      suppressHydrationWarning on both: browser extensions inject attributes
+      here (crxlauncher, cz-shortcut-listen, Grammarly and friends) before
+      React hydrates, and React reports the diff as a mismatch. It is the
+      documented fix for extension-injected attributes, and it suppresses
+      only these two elements' own attributes — not their subtrees.
+    */
+    <html
+      lang="en"
+      className={`${geist.variable} ${geistMono.variable} ${poppins.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="font-[family-name:var(--font-geist)] antialiased" suppressHydrationWarning>
+        {children}
+      </body>
     </html>
   );
 }

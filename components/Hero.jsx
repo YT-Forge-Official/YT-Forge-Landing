@@ -123,15 +123,15 @@ export function Hero() {
               className="hero-mark-base invert"
             />
 
-            <PixelField
+            {/* <PixelField
               maskSrc="/icon-black.svg"
               pointerTargetRef={sectionRef}
-              gap={9}
+              gap={5}
               radius={460}
               baseAlpha={0}
-              peakAlpha={0.5}
+              peakAlpha={0.7}
               speed={0.0022}
-            />
+            /> */}
 
             <div className="hero-mark-edge">
               <Image

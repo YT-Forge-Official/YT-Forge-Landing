@@ -1,34 +1,17 @@
-import { NAV, REPO_URL, RELEASES_URL, ISSUES_URL, VERSION } from '@/lib/site';
+import { REPO_URL, RELEASES_URL } from '@/lib/site';
 import { Container } from './ui';
 import { GitHubIcon } from './icons';
 import { Logo } from './Logo';
+import { DeveloperPanel } from './DeveloperPanel';
+
+const BUILT_ON = [
+  { label: 'yt-dlp', href: 'https://github.com/yt-dlp/yt-dlp' },
+  { label: 'FFmpeg', href: 'https://ffmpeg.org' },
+  { label: 'Electron', href: 'https://electronjs.org' },
+  { label: 'React', href: 'https://react.dev' },
+];
 
 export function Footer() {
-  const columns = [
-    {
-      title: 'Product',
-      links: NAV,
-    },
-    {
-      title: 'Project',
-      links: [
-        { label: 'GitHub', href: REPO_URL, external: true },
-        { label: 'Releases', href: RELEASES_URL, external: true },
-        { label: 'Issues', href: ISSUES_URL, external: true },
-        { label: 'License (MIT)', href: `${REPO_URL}/blob/main/LICENSE`, external: true },
-      ],
-    },
-    {
-      title: 'Built on',
-      links: [
-        { label: 'yt-dlp', href: 'https://github.com/yt-dlp/yt-dlp', external: true },
-        { label: 'FFmpeg', href: 'https://ffmpeg.org', external: true },
-        { label: 'Electron', href: 'https://electronjs.org', external: true },
-        { label: 'React', href: 'https://react.dev', external: true },
-      ],
-    },
-  ];
-
   return (
     /*
       The footer sits UNDER the page. It is sticky at bottom:0 with the whole
@@ -37,61 +20,71 @@ export function Footer() {
     */
     <footer className="footer-reveal border-line-subtle border-t">
       <Container className="pt-14 pb-0">
-        <div className="grid grid-cols-2 gap-10 sm:grid-cols-4 lg:gap-14">
-          <div className="col-span-2 sm:col-span-1">
+        {/* The developer half is the wider one — it is the part with something
+            to say. The project half is a masthead and a short link list. */}
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] lg:gap-8">
+          {/* ——— the project ——— */}
+          <div>
             <Logo />
-            <p className="text-small text-ink-2 mt-4 max-w-[30ch]">
-              A YouTube downloader that respects your timeline, your bandwidth and your privacy.
+            <p className="text-small text-ink-2 mt-5 max-w-[24ch]">
+              A YouTube downloader that respects your timeline, your bandwidth and your
+              privacy.
             </p>
-            <a
-              href={REPO_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="border-line hover:border-line-hover text-small mt-5 inline-flex h-8 items-center gap-2 rounded-[var(--radius-control)] border px-3 transition-colors"
-            >
-              <GitHubIcon className="size-3.5" />
-              Source
-            </a>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              <a
+                href={REPO_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="border-line hover:border-line-hover text-small inline-flex h-9 items-center gap-2 rounded-[var(--radius-control)] border px-3.5 transition-colors"
+              >
+                <GitHubIcon className="size-3.5" />
+                Source
+              </a>
+              <a
+                href={RELEASES_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="border-line hover:border-line-hover text-small inline-flex h-9 items-center rounded-[var(--radius-control)] border px-3.5 transition-colors"
+              >
+                Releases
+              </a>
+            </div>
+
+            <p className="eyebrow mt-10">Built on</p>
+            <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2.5">
+              {BUILT_ON.map((l) => (
+                <li key={l.label}>
+                  <a
+                    href={l.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-small text-ink-2 hover:text-ink transition-colors duration-150"
+                  >
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {columns.map((col) => (
-            <div key={col.title}>
-              <p className="eyebrow">{col.title}</p>
-              <ul className="mt-4 space-y-2.5">
-                {col.links.map((l) => (
-                  <li key={l.label}>
-                    <a
-                      href={l.href}
-                      target={l.external ? '_blank' : undefined}
-                      rel={l.external ? 'noreferrer' : undefined}
-                      className="text-small text-ink-2 hover:text-ink transition-colors duration-150"
-                    >
-                      {l.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+          {/* ——— the developer ——— */}
+          <div className="border-line-subtle lg:border-l lg:pl-10">
+            <p className="eyebrow">About developer</p>
+
+            <div className="mt-6">
+              <DeveloperPanel />
             </div>
-          ))}
+          </div>
         </div>
 
         <div className="rule my-10" />
 
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <p className="text-small text-ink-4 max-w-[74ch]">
-            YT-FORGE is a graphical interface for the open-source yt-dlp project. It does not
-            modify or circumvent that software, and it does not break access controls. Download
-            only content you have permission to access or distribute.
-          </p>
-
-          <div className="flex shrink-0 items-center gap-4 font-[family-name:var(--font-geist-mono)] text-[11px] tracking-[0.08em] uppercase">
-            <span className="text-ink-4">v{VERSION}</span>
-            <span className="bg-line-strong h-3 w-px" />
-            <span className="text-ink-4">MIT</span>
-            <span className="bg-line-strong h-3 w-px" />
-            <span className="text-ink-4">© {new Date().getFullYear()} Suja</span>
-          </div>
-        </div>
+        <p className="text-small text-ink-4 max-w-[80ch]">
+          YT-FORGE is a graphical interface for the open-source yt-dlp project. It does not
+          modify or circumvent that software, and it does not break access controls. Download
+          only content you have permission to access or distribute.
+        </p>
       </Container>
 
       {/* The wordmark the page lifts off of. Clipped at the baseline so it
