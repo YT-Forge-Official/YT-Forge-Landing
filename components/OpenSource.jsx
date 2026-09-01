@@ -1,6 +1,6 @@
 import { GitFork, CircleDot, Scale, ArrowUpRight } from 'lucide-react';
-import { REPO, REPO_URL, ISSUES_URL } from '@/lib/site';
-import { Container, Section, SectionHead } from './ui';
+import { REPO_URL, ISSUES_URL } from '@/lib/site';
+import { Container, Section } from './ui';
 import { GitHubIcon, StarIcon } from './icons';
 
 export function OpenSource({ stats }) {
@@ -23,13 +23,12 @@ export function OpenSource({ stats }) {
                 Open source
               </p>
               <h2 className="text-section mt-4 font-medium text-balance" data-reveal>
-                Read it, fork it,{' '}
-                <span className="dim">or just check that it does what it says.</span>
+                Star the repo?
               </h2>
-              <p className="text-body text-ink-2 mt-5 max-w-[52ch]" data-reveal>
-                The whole app is on GitHub — Electron main process, React renderer, the format
-                ranking logic, all of it. If you have ever wondered what a downloader is really
-                doing with your traffic, this one you can just go and look at.
+              <p className="text-body text-ink-2 mt-5 max-w-[50ch]" data-reveal>
+                It&rsquo;s all open on GitHub, so have a poke around and see how it actually
+                works. If you like what you find, a star goes a long way, and it helps other
+                people find it too.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3" data-reveal>
@@ -43,9 +42,6 @@ export function OpenSource({ stats }) {
                 </a>
               </div>
 
-              <p className="text-meta text-ink-4 mt-6 font-[family-name:var(--font-geist-mono)] uppercase">
-                {REPO}
-              </p>
             </div>
 
             <div className="lg:col-span-6">
@@ -72,9 +68,6 @@ export function OpenSource({ stats }) {
                 ))}
               </div>
 
-              <p className="text-small text-ink-4 mt-4">
-                Counts refresh hourly from the GitHub API.
-              </p>
             </div>
           </div>
         </div>

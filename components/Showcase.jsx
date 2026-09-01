@@ -10,9 +10,9 @@ const CALLOUTS = [
 
 export function Showcase() {
   return (
-    <Section beat="section" className="overflow-hidden !pt-6 sm:!pt-8">
+    <Section beat="section" className="overflow-hidden">
       <Container>
-        <SectionHead title="A clean, minimal UI." />
+        <SectionHead title="Clean, minimal UI." />
 
         <div className="mt-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:items-stretch lg:gap-14">
           <div className="lg:col-span-7" data-reveal>

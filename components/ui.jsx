@@ -9,10 +9,18 @@ export function Container({ className, children }) {
 
 /** Vertical rhythm wrapper. `beat` picks the spacing tier. */
 export function Section({ id, beat = 'section', className, children }) {
+  /*
+    One rhythm for every section. The three tiers used to differ, which meant
+    the gap between two sections depended on which pair happened to be
+    adjacent — 52px in one place, 128px in another. Adjacent sections each
+    contribute their own padding, so a single value here is what actually
+    guarantees an even beat down the page. `beat` is kept for call-site
+    readability; per-section overrides should not be reintroduced.
+  */
   const pad = {
-    chapter: 'py-12 sm:py-16',
-    section: 'py-10 sm:py-14',
-    sub: 'py-8 sm:py-10',
+    chapter: 'py-7 sm:py-8',
+    section: 'py-7 sm:py-8',
+    sub: 'py-7 sm:py-8',
   }[beat];
 
   return (

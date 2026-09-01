@@ -26,7 +26,7 @@ export function Features() {
             n="01"
             icon={Film}
             title="H.264 + AAC, picked for you"
-            body="YouTube serves the same video in three codecs. You get the one that scrubs."
+            body="Same video, three different codecs. You get the one that actually plays on a timeline."
           >
             <CodecRank />
           </Card>
@@ -36,7 +36,7 @@ export function Features() {
             n="02"
             icon={Maximize2}
             title="Up to 8K"
-            body="If the source has it, you can pull it."
+            body="If the video is in 8K, you get it in 8K."
             delay={80}
           >
             <ResolutionLadder />
@@ -59,7 +59,7 @@ export function Features() {
               n="04"
               icon={Zap}
               title="Super fast downloads"
-              body="Straight from the source to your disk, with nothing sitting in between. The only limit is your own connection."
+              body="Files come straight to your disk. Nothing sits in between slowing it down."
               delay={160}
             />
           </div>
@@ -68,8 +68,8 @@ export function Features() {
             span={7}
             n="05"
             icon={ListVideo}
-            title="Playlists, queued"
-            body="Paste a playlist, pick a folder, walk away."
+            title="Playlists and queues"
+            body="Paste a playlist and it downloads the whole thing, one video after another."
           >
             <PlaylistQueue />
           </Card>
@@ -79,7 +79,7 @@ export function Features() {
             n="06"
             icon={KeyRound}
             title="Sign in with Google"
-            body="Age-restricted and members-only videos need an account to reach. Sign in once and they download like anything else."
+            body="Some videos need an account to watch. Sign in once and those download like any other."
           >
             <div className="mt-auto flex items-center gap-3 pt-7">
               <GoogleMark />
@@ -92,7 +92,7 @@ export function Features() {
             n="07"
             icon={ArrowUp}
             title="yt-dlp updates itself"
-            body="The engine refreshes every time the app opens, so a change on YouTube’s side never leaves you with a broken download."
+            body="It checks for a new version of yt-dlp on every launch, so downloads keep working when YouTube changes something."
             delay={80}
           />
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { useScroll, useMotionValueEvent } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ChevronDown, Pause, Search, Download } from 'lucide-react';
 import { Container, Section } from './ui';
 import { GitHubIcon } from './icons';
@@ -30,6 +30,7 @@ const mmss = (s) => {
  */
 export function DownloadFlow() {
   const ref = useRef(null);
+  const reduce = useReducedMotion();
 
   // Two trackers, because the two things being driven live in different
   // windows and deriving one from the other means redoing the arithmetic
@@ -48,6 +49,17 @@ export function DownloadFlow() {
     target: ref,
     offset: ['start start', 'end end'],
   });
+
+  /*
+    The window grows as it fills. Driven as a transform rather than by
+    re-computing the root font-size: font-size would reflow the whole panel on
+    every scroll event, whereas scale is composited. It scales DOWN from the
+    size that already fits the viewport — so the largest it ever gets is the
+    size we know is safe, and it can never be clipped by the nav or the fold.
+    transform-origin defaults to the centre, and the panel is centred in its
+    row, so it expands equally in all four directions and never drifts.
+  */
+  const scale = useTransform(pinned, [0, 0.92], reduce ? [1, 1] : [0.92, 1]);
 
   const [pct, setPct] = useState(0);
   const [typed, setTyped] = useState(0);
@@ -88,7 +100,7 @@ export function DownloadFlow() {
           style={{ paddingTop: 'calc(var(--nav-h) + 1.25rem)', paddingBottom: '1.25rem' }}
         >
           <Container>
-            <div className="dlf-window">
+            <motion.div style={{ scale }} className="dlf-window">
               {/* ——— url bar ——— */}
               <div className="dlf-bar">
                 <div className="dlf-input">
@@ -211,7 +223,7 @@ export function DownloadFlow() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </Container>
         </div>
       </div>

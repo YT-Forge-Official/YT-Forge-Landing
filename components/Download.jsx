@@ -1,22 +1,22 @@
-import { Download as DownloadIcon, ShieldAlert, ArrowUpRight } from 'lucide-react';
+import { Download as DownloadIcon, ArrowUpRight } from 'lucide-react';
 import { PLATFORMS, VERSION, LATEST_URL, RELEASES_URL } from '@/lib/site';
-import { Container, Section, SectionHead, Chip } from './ui';
+import { Container, Section, SectionHead } from './ui';
 import { AppleIcon, WindowsIcon, LinuxIcon } from './icons';
 
 const ICONS = { mac: AppleIcon, windows: WindowsIcon, linux: LinuxIcon };
+
+const FIRST_RUN = [
+  { os: 'macOS', steps: ['System Settings', 'Privacy & Security', 'Open Anyway'] },
+  { os: 'Windows', steps: ['More Info', 'Run Anyway'] },
+];
 
 export function Download() {
   return (
     <Section id="download" beat="chapter">
       <Container>
-        <SectionHead
-          eyebrow="Download"
-          title={`Version ${VERSION}.`}
-          dim="Free, and it stays free."
-          deck="Pick your platform. No email gate, no installer bundling a browser toolbar, no counting down before the link appears."
-        />
+        <SectionHead eyebrow="Download" title={`Version ${VERSION}.`} dim="Free." />
 
-        <div className="mt-14 grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-3 md:grid-cols-3">
           {PLATFORMS.map((p, i) => {
             const Icon = ICONS[p.id];
             const primary = p.builds.find((b) => b.primary) ?? p.builds[0];
@@ -29,12 +29,9 @@ export function Download() {
                 style={{ '--reveal-delay': `${i * 90}ms` }}
                 className="panel panel-interactive group flex flex-col p-6 sm:p-7"
               >
-                <div className="flex items-start justify-between">
-                  <span className="border-line-subtle flex size-11 items-center justify-center rounded-[var(--radius-control)] border bg-white/[0.025]">
-                    <Icon className="text-ink size-5" />
-                  </span>
-                  <Chip>{p.ext}</Chip>
-                </div>
+                <span className="border-line-subtle flex size-11 items-center justify-center rounded-[var(--radius-control)] border bg-white/[0.025]">
+                  <Icon className="text-ink size-5" />
+                </span>
 
                 <h3 className="text-sub mt-6 font-medium">{p.name}</h3>
                 <p className="text-small text-ink-2 mt-1.5">{p.tagline}</p>
@@ -43,7 +40,7 @@ export function Download() {
                 </p>
 
                 <a href={primary.href} className="btn btn-primary mt-7 w-full">
-                <DownloadIcon className="size-4 transition-transform duration-300" />
+                  <DownloadIcon className="size-4" />
                   Download
                 </a>
 
@@ -71,35 +68,74 @@ export function Download() {
           })}
         </div>
 
-        {/* gatekeeper notice */}
-        <div
-          data-reveal
-          className="panel mt-3 flex flex-col gap-5 p-6 sm:p-7 lg:flex-row lg:items-center"
-        >
-          <span className="border-line-subtle flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-control)] border bg-white/[0.025]">
-            <ShieldAlert className="text-warn size-4" strokeWidth={1.7} />
-          </span>
+        {/*
+          Deliberately not a panel. This is a note about the software, not
+          another thing to choose, so it sits on the page under a hairline
+          rather than in a box competing with the three cards above it.
+        */}
+        <div className="mt-12" data-reveal>
+          <div className="rule" />
 
-          <div className="min-w-0 flex-1">
-            <h3 className="text-card font-medium">Your OS will warn you once. That is expected.</h3>
-            <p className="text-body text-ink-2 mt-2 max-w-[70ch]">
-              Code-signing certificates cost more than an independent open-source project makes.
-              On <span className="text-ink">macOS</span> open System Settings → Privacy &amp;
-              Security → <span className="text-ink">Open Anyway</span>. On{' '}
-              <span className="text-ink">Windows</span> choose More info →{' '}
-              <span className="text-ink">Run anyway</span>. Once per install, then never again.
-            </p>
-          </div>
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-16">
+            <div>
+              <p className="eyebrow">Security notice</p>
+              <p className="text-body text-ink-2 mt-4 max-w-[46ch]">
+                This is an independent open-source app, so it does not ship with an enterprise
+                code-signing certificate. Your operating system may show a warning the first
+                time you open it.
+              </p>
+            </div>
 
-          <div className="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col">
-            <a href={LATEST_URL} target="_blank" rel="noreferrer" className="btn btn-ghost h-9 px-4 text-[13px]">
-              Latest release
-            </a>
-            <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="btn btn-ghost h-9 px-4 text-[13px]">
-              All versions
-            </a>
+            <div>
+              <div className="grid gap-8 sm:grid-cols-2">
+                {FIRST_RUN.map((r) => (
+                  <div key={r.os}>
+                    <p className="text-small text-ink font-medium">{r.os}</p>
+                    <ol className="mt-3 space-y-1.5">
+                      {r.steps.map((step, i) => (
+                        <li
+                          key={step}
+                          className="text-small text-ink-2 flex items-baseline gap-2 font-[family-name:var(--font-geist-mono)]"
+                        >
+                          <span className="text-ink-4 shrink-0">
+                            {i === 0 ? '\u00A0' : '\u2192'}
+                          </span>
+                          {step}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-line-subtle mt-8 flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-t pt-5">
+                <p className="text-small text-ink-4">Approval is needed once, not every launch.</p>
+
+                <div className="flex flex-wrap gap-x-7 gap-y-3">
+                  <a
+                    href={LATEST_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-small text-ink-2 hover:text-ink flex items-center gap-1.5 transition-colors"
+                  >
+                    Latest release
+                    <ArrowUpRight className="size-3.5" />
+                  </a>
+                  <a
+                    href={RELEASES_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-small text-ink-2 hover:text-ink flex items-center gap-1.5 transition-colors"
+                  >
+                    All versions
+                    <ArrowUpRight className="size-3.5" />
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
       </Container>
     </Section>
   );

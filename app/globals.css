@@ -607,6 +607,9 @@ body {
        window is ~51em tall at its lankiest (stacked phone layout is taller,
        handled below), and everything inside is `em`-based, so shrinking this
        one font-size shrinks the entire window proportionally. */
+    /* 2.5rem of that is the sticky row's own padding (1.25rem top and bottom,
+       equal, so the gap above and below the panel is identical); the rest is
+       breathing room. This is the size at scale(1) — the ceiling. */
     --dlf-h: calc((100svh - var(--nav-h) - 3.5rem) / 52);
     --dlf-w: calc((100vw - 3rem) / 62);
     font-size: clamp(0.44rem, min(var(--dlf-h), var(--dlf-w)), 0.92rem);

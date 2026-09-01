@@ -100,7 +100,7 @@ export function Hero() {
                     <span className="block px-2">downloads</span>
                   </motion.span>
                 </span>
-                ,
+                
               </span>
             </span>
 

@@ -294,7 +294,7 @@ export function BrandBand() {
   return (
     <section
       ref={sectionRef}
-      className="dropzone relative overflow-hidden pt-12 pb-4 sm:pt-16 sm:pb-5"
+      className="dropzone relative overflow-hidden py-7 sm:py-8"
       data-armed="off"
       data-target="off"
     >
