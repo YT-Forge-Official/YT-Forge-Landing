@@ -28,7 +28,7 @@ export function OpenSource({ stats }) {
               <p className="text-body text-ink-2 mt-5 max-w-[50ch]" data-reveal>
                 It&rsquo;s all open on GitHub, so have a poke around and see how it actually
                 works. If you like what you find, a star goes a long way, and it helps other
-                people find it too.
+                people find it too :)
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3" data-reveal>

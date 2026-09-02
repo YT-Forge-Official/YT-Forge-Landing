@@ -372,6 +372,145 @@ body {
     transition: opacity 0.5s var(--ease-out);
   }
 
+  /* ——— the spec strip ———
+     The bar carries four facts, not two, and it carries them as a spec sheet:
+     one mono eyebrow over one mono value, one type size for every value, and
+     hairlines doing the dividing. Reading it top to bottom in a column is the
+     whole design — no cards, no chips, no badges, nothing per-cell but a line.
+
+     Two deliberate asymmetries in an otherwise even row: the first cell's
+     value is a logo instead of type, and the second carries a glyph. That
+     gives the eye a place to land in what would otherwise be a flat grid. */
+  .hero-spec {
+    /* One knob. The value size sets the glyph, the icon and the rhythm. */
+    --spec-v: clamp(1.375rem, 2.6vw, 2.125rem);
+    --spec-rule: rgba(255, 255, 255, 0.13);
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-block: 2rem;
+  }
+
+  .hero-spec-cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.95rem;
+    padding: 1.35rem 0.5rem;
+    text-align: center;
+  }
+
+  /* Dividers are pseudo-elements, not borders, so they can fade at both ends
+     the way every other rule on the page does. 2×2 on phones: a vertical line
+     down the middle, a horizontal one between the rows. */
+  .hero-spec-cell::before,
+  .hero-spec-cell::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+  }
+  .hero-spec-cell::before {
+    inset-block: 0;
+    left: 0;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, var(--spec-rule) 22%, var(--spec-rule) 78%, transparent);
+    opacity: 0;
+  }
+  .hero-spec-cell::after {
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--spec-rule) 24%, var(--spec-rule) 76%, transparent);
+    opacity: 0;
+  }
+  .hero-spec-cell:nth-child(even)::before { opacity: 1; }
+  .hero-spec-cell:nth-child(n + 3)::after { opacity: 1; }
+
+  .hero-spec-label {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: var(--text-meta);
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+  }
+
+  /* Every value shares this line: same size, same weight, same colour. The
+     row is legible as a set because nothing in it is styled specially. */
+  .hero-spec-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    height: var(--spec-v);
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: var(--spec-v);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    white-space: nowrap;
+    color: var(--color-ink-deck);
+    text-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    transition: text-shadow 0.45s var(--ease-out);
+  }
+
+  /* Just the value line breathes on hover — a faint bloom, no colour change
+     and nothing else in the cell moves. */
+  .hero-spec-value:hover {
+    text-shadow: 0 0 1.1rem rgba(255, 255, 255, 0.18);
+  }
+
+  .hero-spec-icon {
+    height: 0.66em;
+    width: 0.66em;
+    flex: none;
+    color: var(--color-ink-2);
+  }
+
+  /* The yt-dlp lockup, cropped to its ink (the source PNG is 500×500 with the
+     wordmark occupying 433×189 of it) so its real height matches the numerals
+     beside it rather than its own transparent padding. */
+  .hero-spec-lockup {
+    --gh: calc(var(--spec-v) * 1.1);
+    position: relative;
+    display: block;
+    height: var(--gh);
+    width: calc(var(--gh) * 433 / 189);
+    overflow: hidden;
+  }
+  .hero-spec-lockup img {
+    display: block;
+    max-width: none;
+    width: calc(var(--gh) * 500 / 189);
+    height: calc(var(--gh) * 500 / 189);
+    margin-top: calc(var(--gh) * -155 / 189);
+    margin-left: calc(var(--gh) * -34 / 189);
+    opacity: 0.9;
+    filter: grayscale(1);
+    transition:
+      opacity 0.5s var(--ease-out),
+      filter 0.5s var(--ease-out);
+  }
+  a.hero-spec-lockup:hover img { opacity: 1; filter: grayscale(0); }
+
+  @media (min-width: 768px) {
+    .hero-spec {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      padding-block: 2.25rem;
+    }
+    /* One row: every cell but the first takes a left rule, and no cell takes
+       a top one. */
+    .hero-spec-cell:not(:first-child)::before { opacity: 1; }
+    .hero-spec-cell::after { display: none; }
+  }
+
+  @media (max-width: 400px) {
+    .hero-spec { --spec-v: 1.25rem; }
+    .hero-spec-cell { gap: 0.7rem; padding: 1.1rem 0.25rem; }
+  }
+
   /* Touch and reduced motion both keep the composition — only the pointer
      light and the rise are dropped, and neither carries any layout. */
   @media (hover: none) {
@@ -420,13 +559,13 @@ body {
     display: flex;
     align-items: center;
     gap: 1.15rem;
-    padding: 1.5rem;
+    padding: 1.25rem 1.5rem;
   }
 
   .dev-avatar {
     display: block;
-    width: 5.5rem;
-    height: 5.5rem;
+    width: 4.875rem;
+    height: 4.875rem;
     flex: none;
     padding: 2px;
     border-radius: 999px;
@@ -489,7 +628,7 @@ body {
     border-top: 1px solid var(--color-line-subtle);
   }
   .dev-stat {
-    padding: 1.15rem 1.5rem;
+    padding: 0.95rem 1.5rem;
     border-left: 1px solid var(--color-line-subtle);
   }
   .dev-stat:first-child { border-left: 0; }
@@ -519,7 +658,7 @@ body {
     grid-template-columns: 1.25rem 6rem minmax(0, 1fr) 1rem;
     align-items: center;
     gap: 0.9rem;
-    padding: 0.95rem 1.5rem;
+    padding: 0.8rem 1.5rem;
     transition: background-color 0.2s var(--ease-out);
   }
   .dev-link:hover { background: rgba(255, 255, 255, 0.022); }
@@ -560,6 +699,12 @@ body {
   }
   .dev-link:hover .dev-link-arrow { opacity: 1; }
 
+  /* The tip jar is the same row as every other link — no badge, no border, no
+     panel of its own. The only thing that marks it out is that its mark warms
+     instead of whitening on hover, which is enough. */
+  .dev-link-kofi:hover .dev-link-mark { color: #f6c177; }
+  .dev-link-kofi:hover { background: rgba(246, 193, 119, 0.035); }
+
   @media (max-width: 519px) {
     .dev-head { flex-wrap: wrap; padding: 1.15rem; }
     .dev-avatar { width: 4rem; height: 4rem; }
@@ -571,7 +716,7 @@ body {
 
   .footer-wordmark-clip {
     overflow: hidden;
-    margin-top: clamp(2rem, 5vw, 4rem);
+    margin-top: clamp(1.5rem, 4vw, 3.25rem);
     /* the glyphs sit on the page's bottom edge, descender-less caps cropped
        just enough to feel set INTO the edge */
     line-height: 0.72;

@@ -19,7 +19,7 @@ export function Footer() {
       page up like a sheet of paper and the footer is simply already there.
     */
     <footer className="footer-reveal border-line-subtle border-t">
-      <Container className="pt-14 pb-0">
+      <Container className="pt-11 pb-0">
         {/* The developer half is the wider one — it is the part with something
             to say. The project half is a masthead and a short link list. */}
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] lg:gap-8">
@@ -51,7 +51,7 @@ export function Footer() {
               </a>
             </div>
 
-            <p className="eyebrow mt-10">Built on</p>
+            <p className="eyebrow mt-8">Built on</p>
             <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2.5">
               {BUILT_ON.map((l) => (
                 <li key={l.label}>
@@ -78,7 +78,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="rule my-10" />
+        <div className="rule my-8" />
 
         <p className="text-small text-ink-4 max-w-[80ch]">
           YT-FORGE is a graphical interface for the open-source yt-dlp project. It does not

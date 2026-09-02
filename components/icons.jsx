@@ -66,3 +66,17 @@ export function InstagramMark({ className = 'size-4' }) {
     </svg>
   );
 }
+
+/**
+ * A solid download mark — stem, wide head, tray. Built rather than borrowed:
+ * a hairline stroke icon reads as thin and incidental beside display numerals,
+ * and this sits next to a 36px one. Geometry is on a 24 grid so it stays crisp.
+ */
+export function DownloadMarkIcon({ className = 'size-5' }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+      <path d="M9.6 1.7h4.8a1.2 1.2 0 0 1 1.2 1.2v6.2h2.9c.85 0 1.28.93.72 1.5l-6.34 6.44a1.2 1.2 0 0 1-1.72 0L4.82 10.6c-.57-.57-.14-1.5.71-1.5h2.87V2.9c0-.66.54-1.2 1.2-1.2Z" />
+      <rect x="2.6" y="19.6" width="18.8" height="2.7" rx="1.35" />
+    </svg>
+  );
+}

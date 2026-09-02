@@ -1,5 +1,6 @@
 import Image from 'next/image';
-import { SOCIALS, YOUTUBE } from '@/lib/site';
+import { Coffee } from 'lucide-react';
+import { SOCIALS, YOUTUBE, KOFI } from '@/lib/site';
 import { GitHubIcon, YouTubeMark, LinkedInMark, InstagramMark } from './icons';
 
 const MARKS = {
@@ -67,7 +68,8 @@ export function DeveloperPanel() {
         ))}
       </dl>
 
-      {/* ——— everywhere else ——— */}
+      {/* ——— everywhere else, and the tip jar as the last row of the same
+          list, so it is part of the panel rather than a widget stuck to it ——— */}
       <ul className="dev-links">
         {SOCIALS.map((s) => {
           const Mark = MARKS[s.id];
@@ -84,6 +86,23 @@ export function DeveloperPanel() {
             </li>
           );
         })}
+
+        <li>
+          <a
+            href={KOFI.href}
+            target="_blank"
+            rel="noreferrer"
+            className="dev-link dev-link-kofi group"
+            aria-label="Support the project on Ko-fi"
+          >
+            <Coffee className="dev-link-mark" strokeWidth={1.6} />
+            <span className="dev-link-label">{KOFI.label}</span>
+            <span className="dev-link-handle">{KOFI.handle}</span>
+            <span className="dev-link-arrow" aria-hidden>
+              →
+            </span>
+          </a>
+        </li>
       </ul>
     </div>
   );

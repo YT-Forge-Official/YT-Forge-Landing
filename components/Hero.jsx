@@ -3,9 +3,9 @@
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
-import { YT_DLP_URL, YT_DLP_STARS } from '@/lib/site';
+import { YT_DLP_URL, DOWNLOADS_FALLBACK, formatApprox } from '@/lib/site';
 import { Container } from './ui';
-import { StarIcon } from './icons';
+import { DownloadMarkIcon } from './icons';
 import { PixelField } from './PixelField';
 
 /**
@@ -20,7 +20,12 @@ import { PixelField } from './PixelField';
  *  · the pointer light is written as CSS variables, so it never triggers a
  *    React render or a reflow.
  */
-export function Hero() {
+export function Hero({ downloads }) {
+  // A live figure when GitHub answered, the pinned floor when it did not.
+  // Either way it is rounded down, so the strip can never overstate.
+  const total = formatApprox(downloads) ?? formatApprox(DOWNLOADS_FALLBACK);
+  
+
   const sectionRef = useRef(null);
   const reduce = useReducedMotion();
 
@@ -158,87 +163,39 @@ export function Hero() {
         />
 
         <Container>
-          {/*
-            One grid drives both cells, so the eyebrows share a row and the
-            marks share a row — alignment is structural, not eyeballed. `--gh`
-            is the yt-dlp glyph height; the lockup is cropped to its ink so it
-            optically matches the numerals.
-          */}
-          <div
-            className="relative mx-auto grid w-full max-w-[560px] grid-cols-[minmax(0,1fr)_1px_minmax(0,1fr)] items-center gap-y-3 py-8 sm:gap-y-4"
-            data-reveal
-            style={{ '--reveal-delay': '220ms', '--gh': 'clamp(26px, 3vw, 42px)' }}
-          >
-            <span className="eyebrow text-ink-4 justify-self-center">Powered by</span>
-
-            <span
-              aria-hidden
-              className="row-span-2 h-full w-px"
-              style={{
-                background:
-                  'linear-gradient(180deg, transparent, rgba(255,255,255,0.2) 22%, rgba(255,255,255,0.2) 78%, transparent)',
-              }}
-            />
-
-            <span className="eyebrow text-ink-4 justify-self-center">Trusted by</span>
-
-            <a
-              href={YT_DLP_URL}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="yt-dlp on GitHub"
-              className="group relative justify-self-center"
-            >
-              <span
-                aria-hidden
-                className="absolute -inset-x-6 -inset-y-3 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
-                style={{
-                  background:
-                    'radial-gradient(60% 120% at 50% 50%, rgba(255,255,255,0.13), transparent 70%)',
-                }}
-              />
-              <span
-                className="relative block overflow-hidden"
-                style={{ height: 'var(--gh)', width: 'calc(var(--gh) * 433 / 189)' }}
-              >
-                <Image
-                  src="/yt-dlp.png"
-                  alt="yt-dlp"
-                  width={500}
-                  height={500}
-                  className="block max-w-none opacity-[0.88] grayscale transition duration-500 group-hover:opacity-100 group-hover:grayscale-0"
-                  style={{
-                    width: 'calc(var(--gh) * 500 / 189)',
-                    height: 'calc(var(--gh) * 500 / 189)',
-                    marginTop: 'calc(var(--gh) * -155 / 189)',
-                    marginLeft: 'calc(var(--gh) * -34 / 189)',
-                  }}
-                />
+          <div className="hero-spec" data-reveal style={{ '--reveal-delay': '220ms' }}>
+            <div className="hero-spec-cell">
+              <span className="hero-spec-label">Powered by</span>
+              <span className="hero-spec-value">
+                <a
+                  href={YT_DLP_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="yt-dlp on GitHub"
+                  className="hero-spec-lockup"
+                >
+                  <Image src="/yt-dlp.png" alt="yt-dlp" width={500} height={500} />
+                </a>
               </span>
-            </a>
+            </div>
 
-            <span
-              aria-label={`yt-dlp has ${YT_DLP_STARS} stars on GitHub`}
-              className="flex items-center justify-self-center"
-              style={{ height: 'var(--gh)' }}
-            >
-              <span
-                className="text-ink-3 block shrink-0"
-                style={{
-                  width: 'calc(var(--gh) * 0.46)',
-                  height: 'calc(var(--gh) * 0.46)',
-                  marginRight: 'calc(var(--gh) * 0.28)',
-                }}
-              >
-                <StarIcon className="size-full" />
+            <div className="hero-spec-cell">
+              <span className="hero-spec-label">Downloads</span>
+              <span className="hero-spec-value">
+                {/* <DownloadMarkIcon className="hero-spec-icon" /> */}
+                {total}
               </span>
-              <span
-                className="text-ink-deck font-[family-name:var(--font-geist-mono)] leading-none font-medium tabular-nums"
-                style={{ fontSize: 'calc(var(--gh) * 1.18)', letterSpacing: '-0.03em' }}
-              >
-                {YT_DLP_STARS}
-              </span>
-            </span>
+            </div>
+
+            <div className="hero-spec-cell">
+              <span className="hero-spec-label">Price</span>
+              <span className="hero-spec-value">$FREE</span>
+            </div>
+
+            <div className="hero-spec-cell">
+              <span className="hero-spec-label">Format Support</span>
+              <span className="hero-spec-value">8K UHD</span>
+            </div>
           </div>
         </Container>
       </div>

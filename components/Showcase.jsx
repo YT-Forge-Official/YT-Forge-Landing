@@ -4,7 +4,7 @@ import { AppWindow } from './AppWindow';
 const CALLOUTS = [
   { k: 'Thumbnails', v: 'Every row carries its poster frame, title and resolution.' },
   { k: 'Codec labels', v: 'A VP9 file says so, before it reaches your timeline.' },
-  { k: 'Reveal in Finder', v: 'One click from the row to the file on disk.' },
+  { k: 'Reveal in Folder', v: 'One click from the row to the file on disk.' },
   { k: 'Persistent history', v: 'The list survives a restart. Clear it whenever.' },
 ];
 

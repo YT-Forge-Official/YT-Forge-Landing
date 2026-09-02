@@ -12,6 +12,8 @@ import { Footer } from '@/components/Footer';
 
 export default async function Page() {
   const stats = await getRepoStats();
+  // console.log(stats);
+  
   const stars = formatCount(stats?.stars);
 
   return (
@@ -22,7 +24,7 @@ export default async function Page() {
       <div className="page-sheet">
         <Nav stars={stars} />
         <main>
-          <Hero />
+          <Hero downloads={stats?.downloads} />
           <DownloadFlow />
           <BrandBand />
           <Showcase />

@@ -3,6 +3,7 @@ import {
   Maximize2,
   ListVideo,
   RefreshCw,
+  Image as ImageIcon,
   Zap,
   KeyRound,
   ArrowUp,
@@ -18,7 +19,8 @@ export function Features() {
   return (
     <Section id="features" beat="chapter">
       <Container>
-        <SectionHead eyebrow="Features" title="Built with editors in mind." />
+        <SectionHead eyebrow="Features" title="Built with editors in mind.
+" />
 
         <div className="mt-10 grid grid-cols-1 gap-3 lg:grid-cols-12">
           <Card
@@ -57,16 +59,26 @@ export function Features() {
 
             <Card
               n="04"
+              icon={ImageIcon}
+              title="Thumbnails too"
+              body="Save the cover art at full resolution, right next to the video."
+              delay={160}
+            >
+              <ThumbSpec />
+            </Card>
+
+            <Card
+              n="05"
               icon={Zap}
               title="Super fast downloads"
               body="Files come straight to your disk. Nothing sits in between slowing it down."
-              delay={160}
+              delay={240}
             />
           </div>
 
           <Card
             span={7}
-            n="05"
+            n="06"
             icon={ListVideo}
             title="Playlists and queues"
             body="Paste a playlist and it downloads the whole thing, one video after another."
@@ -76,10 +88,15 @@ export function Features() {
 
           <Card
             span={7}
-            n="06"
+            n="07"
             icon={KeyRound}
             title="Sign in with Google"
-            body="Some videos need an account to watch. Sign in once and those download like any other."
+            body={
+              <>
+                Some videos need an account to watch. (eg. Age-Restricted videos or Members only)<br />
+                Sign in once and those download like any other.
+              </>
+            }
           >
             <div className="mt-auto flex items-center gap-3 pt-7">
               <GoogleMark />
@@ -89,7 +106,7 @@ export function Features() {
 
           <Card
             span={5}
-            n="07"
+            n="08"
             icon={ArrowUp}
             title="yt-dlp updates itself"
             body="It checks for a new version of yt-dlp on every launch, so downloads keep working when YouTube changes something."
@@ -130,6 +147,24 @@ function Card({ span, n, icon: Icon, title, body, delay, children }) {
       <h3 className="text-card mt-5 font-medium">{title}</h3>
       <p className="text-body text-ink-2 mt-2.5 max-w-[44ch]">{body}</p>
       {children}
+    </div>
+  );
+}
+
+/**
+ * A single line of file facts, the way the app names the thumbnail it wrote.
+ * Same control surface as ConvertStrip, so the two stacked cards read as a pair.
+ */
+function ThumbSpec() {
+  return (
+    <div className="border-line-subtle mt-auto flex items-center gap-3.5 rounded-[var(--radius-control)] border bg-white/[0.015] px-3.5 py-3">
+      <span className="border-line-subtle block h-7 w-[3.111rem] flex-none rounded-[3px] border bg-white/[0.045]" />
+      <span className="text-small text-ink-2 truncate font-[family-name:var(--font-geist-mono)]">
+        maxresdefault.jpg
+      </span>
+      <span className="text-meta text-ink-4 ml-auto flex-none font-[family-name:var(--font-geist-mono)]">
+        1280 × 720
+      </span>
     </div>
   );
 }
