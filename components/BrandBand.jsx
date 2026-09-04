@@ -36,8 +36,10 @@ const smooth = (t) => t * t * (3 - 2 * t);
 
 export function BrandBand() {
   // Repeats per half. Measured, not guessed: a half must out-span the viewport
-  // or the loop shows its seam.
-  const [reps, setReps] = useState(2);
+  // or the loop shows its seam. Starting at 1 is what the measurement settles
+  // on for any normal viewport, so the server renders the row the client is
+  // going to keep — no doubled markup shipped and no re-render to correct it.
+  const [reps, setReps] = useState(1);
 
   const sectionRef = useRef(null);
   const viewportRef = useRef(null);
@@ -94,8 +96,13 @@ export function BrandBand() {
 
       if (halfW <= 0) return false;
 
+      // One set already out-spans any normal viewport (nine editors at 27rem
+      // is ~3900px), and the formula below is what actually guarantees the
+      // seam stays off screen — so the old floor of 2 was rendering, filtering
+      // and compositing a second copy of the row for nothing. Four sets of
+      // nine became two.
       const setW = halfW / reps;
-      const want = Math.min(8, Math.max(2, Math.ceil((view.width + 400) / setW)));
+      const want = Math.min(8, Math.max(1, Math.ceil((view.width + 400) / setW)));
       if (want !== reps) {
         setReps(want);
         return false;
@@ -294,7 +301,7 @@ export function BrandBand() {
   return (
     <section
       ref={sectionRef}
-      className="dropzone relative overflow-hidden py-7 sm:py-8"
+      className="dropzone relative overflow-hidden py-4 sm:py-8"
       data-armed="off"
       data-target="off"
     >
@@ -349,7 +356,7 @@ export function BrandBand() {
           <div ref={chipRef} className="drag-file">
             <span className="drag-file-thumb">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/costa-rica.jpg" alt="" />
+              <img src="/costa-rica.jpg" alt="" loading="lazy" decoding="async" />
             </span>
             <span className="drag-file-text">
               <span className="drag-file-name">Costa Rica 4K.mp4</span>

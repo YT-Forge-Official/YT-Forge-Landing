@@ -6,7 +6,6 @@ import {
   Image as ImageIcon,
   Zap,
   KeyRound,
-  ArrowUp,
   ChevronLeft,
   Pause,
   X,
@@ -14,12 +13,13 @@ import {
   Check,
 } from 'lucide-react';
 import { Container, Section, SectionHead } from './ui';
+import { UpdateCheckIcon } from './icons';
 
 export function Features() {
   return (
     <Section id="features" beat="chapter">
       <Container>
-        <SectionHead eyebrow="Features" title="Built with editors in mind.
+        <SectionHead eyebrow="Features" title="Reliable, by design.
 " />
 
         <div className="mt-10 grid grid-cols-1 gap-3 lg:grid-cols-12">
@@ -60,12 +60,10 @@ export function Features() {
             <Card
               n="04"
               icon={ImageIcon}
-              title="Thumbnails too"
-              body="Save the cover art at full resolution, right next to the video."
+              title="Grab the thumbnail too"
+              body="Full-resolution cover art, just a click away."
               delay={160}
-            >
-              <ThumbSpec />
-            </Card>
+            />
 
             <Card
               n="05"
@@ -107,7 +105,7 @@ export function Features() {
           <Card
             span={5}
             n="08"
-            icon={ArrowUp}
+            icon={UpdateCheckIcon}
             title="yt-dlp updates itself"
             body="It checks for a new version of yt-dlp on every launch, so downloads keep working when YouTube changes something."
             delay={80}
@@ -135,7 +133,7 @@ function Card({ span, n, icon: Icon, title, body, delay, children }) {
     <div
       data-reveal
       style={delay ? { '--reveal-delay': `${delay}ms` } : undefined}
-      className={`panel panel-interactive flex flex-1 flex-col overflow-hidden p-6 sm:p-7 ${cols ?? ''}`}
+      className={`panel panel-interactive flex flex-auto flex-col overflow-hidden p-6 sm:p-7 ${cols ?? ''}`}
     >
       <div className="flex items-center justify-between">
         <span className="border-line-subtle flex size-9 items-center justify-center rounded-[var(--radius-control)] border bg-white/[0.025]">
@@ -147,24 +145,6 @@ function Card({ span, n, icon: Icon, title, body, delay, children }) {
       <h3 className="text-card mt-5 font-medium">{title}</h3>
       <p className="text-body text-ink-2 mt-2.5 max-w-[44ch]">{body}</p>
       {children}
-    </div>
-  );
-}
-
-/**
- * A single line of file facts, the way the app names the thumbnail it wrote.
- * Same control surface as ConvertStrip, so the two stacked cards read as a pair.
- */
-function ThumbSpec() {
-  return (
-    <div className="border-line-subtle mt-auto flex items-center gap-3.5 rounded-[var(--radius-control)] border bg-white/[0.015] px-3.5 py-3">
-      <span className="border-line-subtle block h-7 w-[3.111rem] flex-none rounded-[3px] border bg-white/[0.045]" />
-      <span className="text-small text-ink-2 truncate font-[family-name:var(--font-geist-mono)]">
-        maxresdefault.jpg
-      </span>
-      <span className="text-meta text-ink-4 ml-auto flex-none font-[family-name:var(--font-geist-mono)]">
-        1280 × 720
-      </span>
     </div>
   );
 }
@@ -216,7 +196,7 @@ function ResolutionLadder() {
   const steps = ['4320p', '2160p', '1440p', '1080p', '720p'];
 
   return (
-    <div className="mt-auto pt-7">
+    <div className="mt-7">
       <div className="flex items-baseline gap-3">
         <span className="font-[family-name:var(--font-geist-mono)] text-[44px] leading-none tracking-[-0.04em]">
           8K
@@ -251,7 +231,13 @@ function ResolutionLadder() {
  * The playlist view, mirroring the app: header with the playlist title and
  * its running count, Pause and Cancel top right, an overall bar, then one
  * row per video — done, downloading (with its own stats), queued.
- * Real videos, so every thumbnail matches its title.
+ * Real videos, so every thumbnail matches its title — and every number is
+ * derived from the real ones, not picked to look good. Titles, durations, top
+ * qualities and byte sizes come from the videos themselves; the rest follows:
+ *   in-flight  38.2% of 709 MB = 270.8 MB
+ *   elapsed    270.8 / 10.42 MB/s = 00:26      left  438.2 / 10.42 = 00:42
+ *   overall    (1120 + 270.8) / 4029 MB = 35%
+ * Change a size and the four numbers below it have to move with it.
  */
 function PlaylistQueue() {
   return (
@@ -260,7 +246,7 @@ function PlaylistQueue() {
       <div className="flex items-center gap-3">
         <ChevronLeft className="text-ink-4 size-4 shrink-0" strokeWidth={2} />
         <div className="min-w-0 flex-1 py-0.5">
-          <p className="text-card truncate font-medium">4K Test Footage</p>
+          <p className="text-card truncate font-medium">Watch Later</p>
           <p className="text-meta text-ink-4 mt-1.5 font-[family-name:var(--font-geist-mono)] tracking-normal">
             1 of 3 videos completed
           </p>
@@ -279,32 +265,32 @@ function PlaylistQueue() {
       <div className="border-line-subtle mt-4 rounded-[8px] border bg-white/[0.02] px-3.5 py-3">
         <div className="flex items-baseline justify-between">
           <span className="text-small text-ink-2">Downloading 2 of 3</span>
-          <span className="text-meta text-ink-3 font-[family-name:var(--font-geist-mono)]">44%</span>
+          <span className="text-meta text-ink-3 font-[family-name:var(--font-geist-mono)]">35%</span>
         </div>
-        <Bar pct={44} className="mt-2" />
+        <Bar pct={35} className="mt-2" />
       </div>
 
       {/* rows */}
       <div className="mt-4 space-y-1.5">
         <Row
-          thumb="/thumb-peru.jpg"
-          title="Peru 8K HDR 60FPS (FUHD)"
-          meta="4320p60 · 5.94 GB"
-          dur="9:54"
+          thumb="/thumb-japan.jpg"
+          title="Japan in 8K ULTRA HD - Land of The Rising Sun (60 FPS)"
+          meta="4320p60 · 1.12 GB"
+          dur="5:30"
           state="done"
         />
         <Row
-          thumb="/thumb-nepal.jpg"
-          title="Nepal In 4K — Scenic Relaxation Film"
-          meta="2160p · 1.62 GB"
-          dur="1:02:40"
+          thumb="/thumb-tesla.jpg"
+          title="I Made a Bet with Tesla"
+          meta="2160p · 709 MB"
+          dur="11:05"
           state="active"
         />
         <Row
-          thumb="/thumb-bunny.jpg"
-          title="Big Buck Bunny 60fps 4K — Blender"
-          meta="2160p60 · 673 MB"
-          dur="10:34"
+          thumb="/thumb-gta6.jpg"
+          title="GTA 6 (Grand Theft Auto 6) - Official Extended Gameplay"
+          meta="2160p · 2.20 GB"
+          dur="26:48"
           state="queued"
         />
       </div>
@@ -324,7 +310,13 @@ function Row({ thumb, title, meta, dur, state }) {
       <div className="flex items-center gap-3">
         <span className="relative h-[30px] w-[53px] shrink-0 overflow-hidden rounded-[4px] bg-white/[0.07]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={thumb} alt="" className="h-full w-full object-cover" />
+          <img
+            src={thumb}
+            alt=""
+            className="h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
           <span className="text-ink-2 absolute right-0.5 bottom-0.5 rounded-[2px] bg-black/75 px-1 font-[family-name:var(--font-geist-mono)] text-[8px] leading-[1.4]">
             {dur}
           </span>
@@ -359,8 +351,8 @@ function Row({ thumb, title, meta, dur, state }) {
           <div className="border-line-subtle mt-2.5 grid grid-cols-3 gap-2 rounded-[8px] border bg-white/[0.015] px-2 py-2.5 text-center">
             {[
               ['Speed', '10.42 MB/s'],
-              ['Elapsed', '00:58'],
-              ['Time left', '01:34'],
+              ['Elapsed', '00:26'],
+              ['Time left', '00:42'],
             ].map(([k, v]) => (
               <div key={k}>
                 <p className="text-ink-4 font-[family-name:var(--font-geist-mono)] text-[9px] tracking-[0.09em] uppercase">
@@ -376,7 +368,7 @@ function Row({ thumb, title, meta, dur, state }) {
             <div className="flex items-baseline justify-between">
               <span className="text-small text-ink-2">Downloading…</span>
               <span className="text-meta text-ink-4 font-[family-name:var(--font-geist-mono)]">
-                38.2% — 634.5 MB / 1.62 GB
+                38.2% — 270.8 MB / 709 MB
               </span>
             </div>
             <Bar pct={38.2} className="mt-2" />
@@ -395,22 +387,31 @@ function Bar({ pct, className = '' }) {
   );
 }
 
+/**
+ * Three columns on one centre line: the wire is the middle column's whole
+ * height, so items-center puts it exactly level with the middle of both
+ * boxes, and "ffmpeg" hangs above it rather than pushing it off centre.
+ */
 function ConvertStrip() {
   return (
-    <div className="border-line-subtle mt-auto flex items-center gap-3 rounded-[var(--radius-control)] border bg-white/[0.015] p-3.5">
-      <Box label="VP9" sub="in" />
-      <div className="flex-1">
-        <p className="text-meta text-ink-4 mb-2 text-center font-[family-name:var(--font-geist-mono)]">
-          ffmpeg
-        </p>
-        <div className="relative h-px w-full overflow-hidden bg-white/10">
-          <span
-            className="bg-ink absolute inset-y-0 left-0 w-1/3"
-            style={{ animation: 'wire 2.4s var(--ease-out) infinite' }}
-          />
+    <div className="mt-7">
+      <div className="border-line-subtle grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-[var(--radius-control)] border bg-white/[0.015] p-4">
+        <Box label="VP9" sub="in" />
+
+        <div className="relative">
+          <p className="text-meta text-ink-4 absolute inset-x-0 bottom-full mb-2 text-center font-[family-name:var(--font-geist-mono)]">
+            ffmpeg
+          </p>
+          <div className="relative h-px w-full overflow-hidden bg-white/10">
+            <span
+              className="bg-ink absolute inset-y-0 left-0 w-1/3"
+              style={{ animation: 'wire 2.4s var(--ease-out) infinite' }}
+            />
+          </div>
         </div>
+
+        <Box label="H.264" sub="out" lit />
       </div>
-      <Box label="H.264" sub="out" lit />
     </div>
   );
 }
@@ -418,7 +419,7 @@ function ConvertStrip() {
 function Box({ label, sub, lit }) {
   return (
     <div
-      className={`shrink-0 rounded-[4px] px-3 py-2 text-center ${
+      className={`min-w-[4.5rem] shrink-0 rounded-[4px] px-3 py-2 text-center ${
         lit
           ? 'bg-white/[0.07] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1),inset_0_0_0_1px_rgba(255,255,255,0.06)]'
           : 'border-line border'

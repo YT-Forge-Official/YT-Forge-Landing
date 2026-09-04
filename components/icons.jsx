@@ -80,3 +80,32 @@ export function DownloadMarkIcon({ className = 'size-5' }) {
     </svg>
   );
 }
+
+/**
+ * A refresh loop closing on a check — "it updated itself, and it's current".
+ *
+ * Composed from lucide's own refresh-ccw geometry so it sits in the same
+ * family as the stroked icons beside it, with a check added inside the loop.
+ * RefreshCw already belongs to the H.264 conversion card, so this one has to
+ * be a distinct mark rather than the same arrows twice.
+ */
+export function UpdateCheckIcon({ className = 'size-4', strokeWidth = 1.6 }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className={className}
+    >
+      <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+      <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+      <path d="M16 16h5v5" />
+      <path d="m8 12 3 3 5.8-6.6" />
+    </svg>
+  );
+}

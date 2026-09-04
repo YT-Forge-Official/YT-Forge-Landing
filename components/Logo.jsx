@@ -11,6 +11,7 @@ export function Logo({ size = 32, showWord = true, className }) {
         height={size}
         className="rounded-[9px] invert opacity-90"
         priority
+        unoptimized
       />
       {showWord ? (
         <span className="font-[family-name:var(--font-poppins)] text-[18px] font-semibold tracking-[-0.04em]">

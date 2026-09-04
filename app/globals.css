@@ -170,6 +170,11 @@ body {
     letter-spacing: -0.011em;
     white-space: nowrap;
     transition: all var(--dur-hover) var(--ease-out);
+    /* Safari: opacity transitions promote/demote a compositing layer mid-hover,
+       which subpixel-shifts inline SVGs when an ancestor is also transforming
+       (panel-interactive lift). Pin the button to its own layer up front. */
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
   }
 
   .btn-primary {
@@ -255,12 +260,16 @@ body {
        both axes so a short window can't let it swallow the headline and a
        narrow one can't shrink it to nothing. Horizontal crop on phones is
        intended; the section clips it. */
-    --mark: clamp(320px, min(120vw, 118vh), 1400px);
+    /* The 1400px cap is what leaves ~210px of slack per side on a 2560px
+       display: the mark stops growing while the viewport keeps going. Cap
+       against viewport height instead of a fixed pixel value. */
+    --mark: clamp(320px, min(120vw, 118vh), max(1400px, 108vh));
     --gap: clamp(2rem, 4.4vw, 4.5rem);
-    /* pointer light, written by the hero's pointermove handler */
-    --mx: 50%;
-    --my: 50%;
-    --hover: 0;
+    /* The pointer light used to live in custom properties on THIS element.
+       Writing a custom property here invalidates style for the whole hero
+       subtree — including the mark's calc()-driven masks — on every single
+       pointermove. It is now a data attribute (a state change, not a
+       per-frame one) plus transforms on the two layers that actually move. */
 
     position: relative;
     display: flex;
@@ -268,7 +277,10 @@ body {
     /* The headline is centred in the space the mark and the bar leave behind,
        so its top and bottom gaps are this slack halved — not a margin. Trim
        the slack to tighten them. */
-    min-height: 96svh;
+    /* Capped: on a 1440px-tall display 96svh alone left ~180px of dead space
+       per side, because the composition stops growing while the screen does
+       not. A hero does not need to be 1400px tall. */
+    min-height: min(96svh, 1180px);
     overflow: hidden;
     padding-top: calc(var(--nav-h) + var(--gap));
   }
@@ -280,11 +292,22 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* Reserves the room the mark's visible INK occupies — about a third of
-       the box, since the glyph is inset inside its 1800² canvas. Reserving a
-       full half would be reserving the SVG's own padding and would push the
-       headline off a short screen for nothing. */
-    padding-bottom: calc(var(--mark) * 0.34 + var(--gap) * 0.5);
+    /* Reserves the room the mark's visible INK occupies, then one --gap on
+       top of it — which is what makes the headline's air symmetrical.
+
+       The mark is `bottom: 0` translated down by half itself, so its box
+       centre sits on this element's bottom edge, and its ink starts 20.24%
+       down its own square canvas (measured: y 364.4 of an 1800 viewBox).
+       Ink top is therefore `stage_bottom - 0.2976 * mark`.
+
+       Air above the headline is `--gap` less half its overflow of this
+       content box; air below is `padding-bottom - 0.2976*mark` less the same
+       half. Equate them and the overflow term cancels, leaving
+       `padding-bottom = --gap + 0.2976 * mark` — true at every viewport size,
+       which the old 0.34/0.5-gap pair was not: it over-reserved the ink by
+       0.042*mark and only paid back half a gap, so the top always came up
+       short. */
+    padding-bottom: calc(var(--mark) * 0.2976 + var(--gap));
   }
 
   /* ——— display type ———
@@ -321,35 +344,90 @@ body {
     -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 38%, rgba(0, 0, 0, 0.55) 47%, transparent 55%);
   }
   /* Parallax lives on its own layer so it can never fight the positioning
-     transform above it. */
-  .hero-mark-inner { position: absolute; inset: 0; }
-  .hero-mark-inner > * { position: absolute; inset: 0; }
+     transform above it. Promoted, so the static fade mask on .hero-mark is
+     applied to a cached layer instead of re-rasterising the whole mark on
+     every scroll frame. */
+  .hero-mark-inner {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
 
   .hero-mark-base {
+    position: absolute;
+    inset: 0;
     height: 100%;
     width: 100%;
     object-fit: contain;
     opacity: 0.1;
   }
 
-  /* Edge-only glow, clipped to a disc that tracks the cursor. */
-  .hero-mark-edge {
-    opacity: var(--hover);
+  /* ——— the cursor light ———
+     Same disc of the same outline as before, built as geometry rather than as
+     a mask that gets recomputed. Two layers slide past each other: .lens is
+     the disc and carries a FIXED, centred mask; .edge is the artwork at full
+     mark size and is moved back by exactly what the lens is moved forward, so
+     it appears to stand still while the disc travels over it.
+
+     Only `transform` changes on a pointermove — no style recalc, no repaint,
+     no mask to re-rasterise. The compositor just moves two textures. */
+  .hero-mark-lens {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: calc(var(--mark) * 0.56);
+    height: calc(var(--mark) * 0.56);
+    /* The artwork inside is far bigger than this box, and mask-repeat is
+       "repeat" by default — without these two the disc would TILE across the
+       whole mark instead of being the single light it is. overflow is here for
+       the same reason: the guarantee that does not depend on mask support. */
+    overflow: hidden;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    opacity: 0;
     transition: opacity 0.5s var(--ease-out);
-    mask-image: radial-gradient(circle calc(var(--mark) * 0.28) at var(--mx) var(--my), #000, transparent 100%);
-    -webkit-mask-image: radial-gradient(circle calc(var(--mark) * 0.28) at var(--mx) var(--my), #000, transparent 100%);
+    mask-image: radial-gradient(circle calc(var(--mark) * 0.28) at 50% 50%, #000, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle calc(var(--mark) * 0.28) at 50% 50%, #000, transparent 100%);
+  }
+
+  .hero-mark-edge {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--mark);
+    height: var(--mark);
   }
   .hero-mark-edge img {
     height: 100%;
     width: 100%;
     object-fit: contain;
-    filter: url(#edge-glow) drop-shadow(0 0 6px rgba(255, 255, 255, 0.45));
+    /* The outline is now real geometry — public/icon-edge.svg is the same two
+       paths, stroked instead of filled — so the only filter left is the
+       bloom, and drop-shadow is the one WebKit runs on the GPU. The old
+       `filter: url(#edge-glow)` chain (feMorphology + feComposite +
+       feGaussianBlur over a 1400px box) was software-rasterised, and the
+       moving mask above it forced it to re-run on every frame. That is what
+       made the hero crawl in Safari. */
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.45));
   }
+
+  /* Lit only while the pointer is actually in the section, and only promoted
+     while lit — so the page is not holding two mark-sized textures the entire
+     time somebody is reading it. */
+  .hero[data-lit='on'] .hero-mark-lens { opacity: 1; }
+  .hero[data-lit='on'] .hero-mark-lens,
+  .hero[data-lit='on'] .hero-mark-edge { will-change: transform; }
 
   /* ——— the bar ———
      Opaque, so it truly occludes the half of the mark below the line, with a
      lit top edge and a shadow thrown upward to seat the mark behind it. */
   .hero-bar {
+    /* Scoped HERE, not on .hero: only this element's own subtree — four cells
+       of text — is invalidated when the sliver tracks the cursor, instead of
+       the entire hero including the mark. */
+    --mx-bar: 50%;
+
     position: relative;
     z-index: 2;
     width: 100%;
@@ -368,9 +446,10 @@ body {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6) 50%, transparent);
     mask-image: radial-gradient(320px 1px at var(--mx-bar) 0, #000, transparent 70%);
     -webkit-mask-image: radial-gradient(320px 1px at var(--mx-bar) 0, #000, transparent 70%);
-    opacity: var(--hover);
+    opacity: 0;
     transition: opacity 0.5s var(--ease-out);
   }
+  .hero[data-lit='on'] .hero-bar::before { opacity: 1; }
 
   /* ——— the spec strip ———
      The bar carries four facts, not two, and it carries them as a spec sheet:
@@ -387,7 +466,7 @@ body {
     --spec-rule: rgba(255, 255, 255, 0.13);
 
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     padding-block: 2rem;
   }
 
@@ -402,8 +481,9 @@ body {
   }
 
   /* Dividers are pseudo-elements, not borders, so they can fade at both ends
-     the way every other rule on the page does. 2×2 on phones: a vertical line
-     down the middle, a horizontal one between the rows. */
+     the way every other rule on the page does. Both rules default to off here;
+     the mobile block below and the 768px one each switch on the pair they
+     need, so no cell can inherit a divider from a layout it is not in. */
   .hero-spec-cell::before,
   .hero-spec-cell::after {
     content: '';
@@ -424,8 +504,6 @@ body {
     background: linear-gradient(90deg, transparent, var(--spec-rule) 24%, var(--spec-rule) 76%, transparent);
     opacity: 0;
   }
-  .hero-spec-cell:nth-child(even)::before { opacity: 1; }
-  .hero-spec-cell:nth-child(n + 3)::after { opacity: 1; }
 
   .hero-spec-label {
     font-family: var(--font-geist-mono), ui-monospace, monospace;
@@ -447,7 +525,7 @@ body {
     height: var(--spec-v);
     font-family: var(--font-geist-mono), ui-monospace, monospace;
     font-size: var(--spec-v);
-    font-weight: 600;
+    font-weight: 300;
     line-height: 1;
     letter-spacing: -0.035em;
     white-space: nowrap;
@@ -495,6 +573,13 @@ body {
   }
   a.hero-spec-lockup:hover img { opacity: 1; filter: grayscale(0); }
 
+  /* Mobile: one column of four stacked cells. Each cell after the first
+     carries a top rule; nobody carries a left one. */
+  .hero-spec-cell:not(:first-child)::after { opacity: 1; }
+  .hero-spec-cell::before { opacity: 0; }
+  .hero-spec-cell { padding: 1.15rem 1rem; align-items: center; text-align: center; }
+  .hero-spec-value { justify-content: center; }
+
   @media (min-width: 768px) {
     .hero-spec {
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -503,7 +588,9 @@ body {
     /* One row: every cell but the first takes a left rule, and no cell takes
        a top one. */
     .hero-spec-cell:not(:first-child)::before { opacity: 1; }
-    .hero-spec-cell::after { display: none; }
+    .hero-spec-cell:not(:first-child)::after { opacity: 0; }
+    .hero-spec-cell { align-items: center; text-align: center; padding: 1.35rem 0.5rem; }
+    .hero-spec-value { justify-content: center; }
   }
 
   @media (max-width: 400px) {
@@ -514,8 +601,54 @@ body {
   /* Touch and reduced motion both keep the composition — only the pointer
      light and the rise are dropped, and neither carries any layout. */
   @media (hover: none) {
-    .hero-mark-edge,
+    .hero-mark-lens,
     .hero-bar::before { display: none; }
+  }
+
+  /* The real predictor is ASPECT RATIO, not width. On any tall viewport the
+     mark is width-limited, so it reserves far less height than 96svh leaves
+     over, and the remainder lands as dead space above AND below the headline
+     (~160px per side on a phone, ~147px on a portrait tablet). Keying off
+     width alone missed tablets entirely. */
+  @media (max-aspect-ratio: 13 / 16) {
+    .hero {
+      --mark: min(135vw, 118vh);
+      min-height: 84svh;
+    }
+  }
+  /* Tall tablets: even at 135vw the mark cannot reserve enough of a 1180px
+     screen, so trim the demand rather than oversize the artwork. */
+  @media (min-width: 768px) and (max-aspect-ratio: 13 / 16) {
+    .hero { min-height: 76svh; }
+  }
+
+  /* Phones only: the headline can be far larger once it is allowed to wrap,
+     and filling the space with type beats filling it with nothing. Tablets
+     keep the two-line nowrap composition, which still fits at their width. */
+  @media (max-width: 767px) {
+    /* On a phone the hero no longer stretches to a fixed fraction of the
+       screen and then centres — that is what stranded the headline in a sea
+       of empty space, because the content is shorter than 84svh. It now sizes
+       to its content: the headline sits a comfortable distance below the nav,
+       the mark bleeds up behind the bar as before, and the stacked stat bar
+       carries the lower half. No forced slack, so nothing is marooned. */
+    .hero {
+      min-height: 0;
+      --mark: min(150vw, 70vh);
+    }
+    .hero-stage {
+      flex: none;
+      justify-content: flex-start;
+      padding-top: clamp(3rem, 12vw, 5rem);
+      padding-bottom: calc(var(--mark) * 0.42);
+    }
+    .hero-title {
+      font-size: clamp(2.25rem, 11.5vw, 3.25rem);
+      line-height: 1.04;
+      letter-spacing: -0.038em;
+    }
+    .hero-title .masker > * { white-space: normal; }
+    .masker { padding-bottom: 0.12em; }
   }
 
   /* ============================================================
@@ -525,19 +658,28 @@ body {
      slides the sheet up and uncovers it — it feels like it was always there.
      Requires body { overflow-x: clip } (not hidden), or the sticky dies.
      ============================================================ */
+  /* The sheet and the sticky footer only take their reveal roles when the
+     footer fits the viewport — see useFooterReveal in lib/reveal.js. Default
+     is a plain footer at the end of the page, which is what the server
+     renders and what short viewports keep. */
   .page-sheet {
     position: relative;
-    z-index: 1;
     background: var(--color-bg);
+  }
+  .footer-reveal {
+    position: relative;
+    background: var(--color-bg-elevated);
+  }
+
+  :root[data-footer-reveal='on'] .page-sheet {
+    z-index: 1;
     /* seats the sheet's bottom edge on the footer like a lifted panel */
     box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9);
   }
-
-  .footer-reveal {
+  :root[data-footer-reveal='on'] .footer-reveal {
     position: sticky;
     bottom: 0;
     z-index: 0;
-    background: var(--color-bg-elevated);
   }
 
   /* ——— developer panel ———
@@ -714,6 +856,25 @@ body {
     .dev-link-label { display: none; }
   }
 
+  /* Touch devices have no hover, but tapping still latches :hover until the
+     next tap elsewhere — which leaves cards lifted, rows highlighted and the
+     wordmark bloomed. Reset every hover state to its resting value here. */
+  @media (hover: none) {
+    .panel-interactive:hover { border-color: var(--color-line); transform: none; }
+    .btn-primary:hover,
+    .btn-ghost:hover { opacity: 1; }
+    .hero-spec-value:hover { text-shadow: 0 0 0 rgba(255, 255, 255, 0); }
+    a.hero-spec-lockup:hover img { opacity: 0.9; filter: grayscale(1); }
+    .dev-head:hover .dev-handle { color: var(--color-ink-4); }
+    .dev-head:hover .dev-subscribe { opacity: 1; }
+    .dev-link:hover { background: transparent; }
+    .dev-link:hover .dev-link-mark { color: var(--color-ink-4); }
+    .dev-link:hover .dev-link-handle { color: var(--color-ink-2); }
+    .dev-link:hover .dev-link-arrow { opacity: 0; }
+    .dev-link-kofi:hover { background: transparent; }
+    .dev-link-kofi:hover .dev-link-mark { color: var(--color-ink-4); }
+  }
+
   .footer-wordmark-clip {
     overflow: hidden;
     margin-top: clamp(1.5rem, 4vw, 3.25rem);
@@ -787,11 +948,19 @@ body {
     background: rgba(255, 255, 255, 0.02);
     overflow: hidden;
   }
+  /* Flex-blockified, so text-overflow applies: the URL trails off in an
+     ellipsis rather than running out to the edge of the field. On a desktop
+     canvas it never gets long enough to trigger — this is what keeps a narrow
+     field from looking like the text is spilling out of it. */
   .dlf-url {
+    flex: 0 1 auto;
+    min-width: 0;
     font-size: 0.95em;
     letter-spacing: -0.01em;
     color: var(--color-ink);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .dlf-placeholder { color: var(--color-ink-4); }
   .dlf-caret {
@@ -827,6 +996,19 @@ body {
     flex: none;
     color: var(--color-ink-2);
   }
+  /* The forge mark. icon-black.svg's ink is 1631x1078 inside an 1800 square,
+     so a square box of 1.3em lands it at 1.18em wide by 0.78em tall — a shade
+     wider and visibly shorter than the 1.15em lucide glyphs next to it, which
+     is how the wide mark reads at the same optical weight. Masked so it takes
+     .dlf-icon's currentColor instead of sitting brighter than its neighbours. */
+  .dlf-mark {
+    width: 1.3em;
+    height: 1.3em;
+    background: currentColor;
+    mask: url('/icon-black.svg') center / contain no-repeat;
+    -webkit-mask: url('/icon-black.svg') center / contain no-repeat;
+  }
+
   /* The download tab carries a dot while something is in flight. */
   .dlf-dot {
     position: absolute;
@@ -864,11 +1046,6 @@ body {
   }
 
   .dlf-grid { display: grid; grid-template-columns: 1fr; gap: 1.4em; }
-  @media (max-width: 899px) {
-    .dlf-window { --dlf-h: calc((100svh - var(--nav-h) - 3.5rem) / 84); }
-    /* the description is the piece that will not fit stacked — cap it */
-    .dlf-desc { max-height: 16em; flex: none; }
-  }
   @media (min-width: 900px) {
     .dlf-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
   }
@@ -1005,6 +1182,79 @@ body {
   .dlf-stat-v,
   .dlf-prog-num {
     font-family: var(--font-geist-mono), ui-monospace, monospace;
+  }
+
+  /* ——— stacked layouts ———
+
+     These live at the END of the section on purpose. A media query adds no
+     specificity, so `.dlf-thumb` inside one and `.dlf-thumb` outside it tie,
+     and source order decides. These blocks used to sit mid-file, where every
+     base rule declared below them silently won — the description was never
+     actually hidden on a phone, it just inherited `display: flex` from the
+     rule underneath. Keep new mobile rules in here, below the base rules they
+     are meant to beat.
+
+     The divisors are the whole trick. `--dlf-w` divides the viewport by the
+     window's natural width in em; at 62 it was still sizing the phone against
+     the DESKTOP canvas, so every glyph came out ~1.8x smaller than the space
+     could actually afford. Stacked the canvas is ~42em (tablet) and ~34em
+     (phone) wide, and `--dlf-h` follows the taller stacked layout — measured
+     with the description dropped and the poster capped (44.4em on a phone,
+     49.1em on a tablet), plus a couple of rows of safety so the window can
+     never outgrow the screen it is pinned to.
+
+     Everything else is the same instinct: give each part only the room it
+     needs at this size, so what is left over reads as breathing room rather
+     than padding. Reading order changes too — title, then poster, then the
+     controls; the description is dropped outright. Grid `order` does that
+     without touching the markup. */
+  @media (max-width: 899px) {
+    .dlf-window {
+      --dlf-h: calc((100svh - var(--nav-h) - 3.5rem) / 51);
+      --dlf-w: calc((100vw - 3rem) / 42);
+    }
+
+    .dlf-body { padding: 1.1em; }
+    .dlf-back { margin-bottom: 1em; }
+    .dlf-grid { gap: 1.1em; }
+
+    /* `display: contents` dissolves the right column so its two children
+       become grid items in their own right. That is what lets the title sit
+       above the poster while the description drops below the controls — the
+       two were locked together in one column before, so moving the title up
+       dragged the prose up with it. No markup change needed. */
+    .dlf-right { display: contents; }
+    .dlf-title { order: -1; font-size: 1.2em; }
+
+    /* Gone, not shrunk. Stacked, the licensing prose is the one block nobody
+       reads and the only one that has no job to do — the poster, the format
+       pickers and the progress all still carry their meaning at this size. */
+    .dlf-desc { display: none; }
+
+    /* Capped, not cropped away: object-fit keeps the poster centred while the
+       box gives back the vertical third it was taking. */
+    .dlf-thumb { aspect-ratio: auto; height: 13em; }
+  }
+
+  /* Phones: the canvas narrows again, so the controls give up the last of
+     their desktop padding and the description drops to a couple of lines. */
+  @media (max-width: 639px) {
+    .dlf-window {
+      --dlf-h: calc((100svh - var(--nav-h) - 3.5rem) / 46);
+      --dlf-w: calc((100vw - 3rem) / 34);
+    }
+
+    .dlf-back { margin-bottom: 0.85em; }
+    .dlf-thumb { height: 10.5em; }
+
+    .dlf-select { height: 2.7em; padding: 0 0.75em; }
+    .dlf-selects { gap: 0.55em; margin-top: 0.85em; }
+    .dlf-btn { height: 2.7em; margin-top: 0.55em; }
+
+    .dlf-stats { margin-top: 1em; padding: 0.7em 0.4em; gap: 0.35em; }
+    .dlf-stat-v { margin-top: 0.3em; }
+    .dlf-prog { margin-top: 0.55em; padding: 0.75em 0.85em; }
+    .dlf-track { margin-top: 0.6em; }
   }
 
   /* ============================================================
@@ -1284,6 +1534,259 @@ body {
 
   .fade-b { mask-image: linear-gradient(180deg, #000 62%, transparent 100%); -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%); }
   .fade-x { mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); }
+
+
+  /* ============================================================
+     DOWNLOADS WINDOW  (Showcase)
+
+     The app's main window as markup rather than a PNG. One knob drives the
+     whole thing: `.dw` takes its font-size from the CONTAINER's width and
+     every measurement inside is in `em`, so the window scales with whatever
+     column it is dropped into. cqw, not vw — the window sits in a grid
+     column, so viewport units would size it against the wrong box.
+
+     Widths inside are fluid (flex, %) rather than a fixed em canvas, so the
+     narrow layout REFLOWS instead of shrinking type past legibility. The
+     compact container query below drops the labels that stop earning their
+     width and lets the icons carry the meaning.
+     ============================================================ */
+  .dw-wrap { container-type: inline-size; width: 100%; }
+
+  .dw {
+    font-size: clamp(0.7rem, 2.15cqw, 1rem);
+    line-height: 1.3;
+    color: var(--color-ink);
+  }
+
+  .dw-i { width: 1.1em; height: 1.1em; flex: none; }
+  .dw-i-lg { width: 1.35em; height: 1.35em; flex: none; }
+
+  /* ——— url bar ——— */
+  .dw-top { display: flex; align-items: center; gap: 0.75em; }
+
+  .dw-url {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 3.1em;
+    padding: 0 0.55em 0 1em;
+    border: 1px solid var(--color-line-subtle);
+    border-radius: 0.7em;
+    background: rgba(255, 255, 255, 0.022);
+  }
+  .dw-url-ph {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 0.92em;
+    color: var(--color-ink-4);
+  }
+  /* The slash hint the real window shows for focusing the field. */
+  .dw-kbd {
+    flex: none;
+    display: grid;
+    place-items: center;
+    min-width: 1.7em;
+    height: 1.7em;
+    padding: 0 0.4em;
+    border: 1px solid var(--color-line-subtle);
+    border-radius: 0.35em;
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.72em;
+    color: var(--color-ink-4);
+  }
+
+  /* Muted, not white: the field is empty, so the action is not armed yet. */
+  .dw-get {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    height: 3.1em;
+    padding: 0 1.15em;
+    border-radius: 0.7em;
+    background: rgba(255, 255, 255, 0.5);
+    color: #101010;
+    font-size: 0.95em;
+    font-weight: 550;
+    white-space: nowrap;
+  }
+
+  .dw-tab {
+    position: relative;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.2em;
+    height: 2.2em;
+    color: var(--color-ink-2);
+  }
+  .dw-tab-dot {
+    position: absolute;
+    top: 0.12em;
+    right: 0.1em;
+    width: 0.45em;
+    height: 0.45em;
+    border-radius: 999px;
+    background: var(--color-ink);
+  }
+  /* Same masked forge mark as the flow window, sized for this chrome. */
+  .dw-mark {
+    width: 1.5em;
+    height: 1.5em;
+    background: currentColor;
+    mask: url('/icon-black.svg') center / contain no-repeat;
+    -webkit-mask: url('/icon-black.svg') center / contain no-repeat;
+  }
+
+  /* ——— panel ——— */
+  .dw-panel {
+    margin-top: 0.85em;
+    padding: 1.4em;
+    border: 1px solid var(--color-line-subtle);
+    border-radius: 0.9em;
+    background: rgba(255, 255, 255, 0.012);
+  }
+
+  .dw-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    flex-wrap: wrap;
+  }
+  .dw-h1 { font-size: 1.35em; font-weight: 600; letter-spacing: -0.03em; }
+  .dw-acts { display: flex; align-items: center; gap: 1.4em; }
+  .dw-act {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 0.88em;
+    color: var(--color-ink-2);
+    white-space: nowrap;
+  }
+
+  /* ——— group bands ——— */
+  .dw-group { display: flex; align-items: center; gap: 0.6em; margin: 1.5em 0 0.9em; }
+  .dw-group-k {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.72em;
+    font-weight: 500;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+    white-space: nowrap;
+  }
+  .dw-group-i { width: 1em; height: 1em; flex: none; color: var(--color-ink-4); }
+  .dw-group-rule { flex: 1 1 auto; height: 1px; background: var(--color-line-subtle); }
+
+  /* ——— rows ——— */
+  .dw-row {
+    display: flex;
+    align-items: center;
+    gap: 0.9em;
+    padding: 0.7em;
+    border: 1px solid transparent;
+    border-radius: 0.7em;
+  }
+  .dw-row + .dw-row { margin-top: 0.55em; }
+  .dw-row-card { border-color: var(--color-line-subtle); background: rgba(255, 255, 255, 0.016); }
+
+  .dw-thumb {
+    position: relative;
+    flex: none;
+    width: 4.9em;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 0.35em;
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .dw-thumb-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  .dw-body { flex: 1 1 auto; min-width: 0; }
+  .dw-title {
+    font-size: 0.9em;
+    letter-spacing: -0.012em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .dw-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.45em;
+    margin-top: 0.35em;
+    font-size: 0.78em;
+    color: var(--color-ink-3);
+  }
+  .dw-meta-mono { font-family: var(--font-geist-mono), ui-monospace, monospace; }
+
+  .dw-bar {
+    display: block;
+    margin-top: 0.6em;
+    height: 0.22em;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
+  .dw-bar-fill { display: block; height: 100%; border-radius: 999px; background: var(--color-ink); }
+
+  .dw-tools { display: flex; align-items: center; gap: 0.9em; flex: none; align-self: center; }
+  .dw-tool { width: 1.25em; height: 1.25em; flex: none; color: var(--color-ink-3); }
+
+  /* ——— footer ——— */
+  .dw-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    margin-top: 1.6em;
+    padding-top: 1.1em;
+    border-top: 1px solid var(--color-line-subtle);
+  }
+  .dw-count {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.78em;
+    color: var(--color-ink-4);
+  }
+  .dw-pager { display: flex; align-items: center; gap: 0.3em; }
+  .dw-page {
+    display: grid;
+    place-items: center;
+    min-width: 1.9em;
+    height: 1.9em;
+    padding: 0 0.4em;
+    border-radius: 0.4em;
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.78em;
+    color: var(--color-ink-3);
+  }
+  .dw-page[data-on='on'] { background: rgba(255, 255, 255, 0.1); color: var(--color-ink); }
+  .dw-page[data-off='on'] { color: var(--color-ink-4); opacity: 0.45; }
+
+  /* Narrow column: scaling further would push the type under 10px, so the
+     window reflows instead. Labels drop to their icons, the slash hint and
+     the middle of the pager go, and the row gives its width back to the
+     title — the one thing you actually read at this size. */
+  @container (max-width: 30rem) {
+    .dw { font-size: clamp(0.78rem, 3.4cqw, 0.95rem); }
+    .dw-panel { padding: 1em; }
+    .dw-kbd,
+    .dw-act-t,
+    .dw-page-gap { display: none; }
+    .dw-acts { gap: 1.1em; }
+    .dw-get { padding: 0 0.9em; }
+    .dw-get-t { display: none; }
+    .dw-thumb { width: 3.9em; }
+    .dw-tools { gap: 0.7em; }
+    .dw-row { gap: 0.7em; padding: 0.6em; }
+    .dw-foot { margin-top: 1.2em; padding-top: 0.9em; }
+  }
 
   /* Hairline divider that fades at both ends */
   .rule {

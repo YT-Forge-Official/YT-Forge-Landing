@@ -1,5 +1,6 @@
 import { Container, Section, SectionHead } from './ui';
 import { AppWindow } from './AppWindow';
+import { DownloadsWindow } from './DownloadsWindow';
 
 const CALLOUTS = [
   { k: 'Thumbnails', v: 'Every row carries its poster frame, title and resolution.' },
@@ -16,10 +17,9 @@ export function Showcase() {
 
         <div className="mt-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:items-stretch lg:gap-14">
           <div className="lg:col-span-7" data-reveal>
-            <AppWindow
-              src="/screenshot1.png"
-              alt="YT-FORGE main window: a URL bar and a download list with five videos, each showing a thumbnail, title and resolution"
-            />
+            <AppWindow>
+              <DownloadsWindow />
+            </AppWindow>
           </div>
 
           {/*

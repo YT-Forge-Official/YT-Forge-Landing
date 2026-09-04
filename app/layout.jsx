@@ -14,10 +14,11 @@ const geistMono = Geist_Mono({
   display: 'swap',
 });
 
-// Matches the wordmark in the Photoshop banner.
+// Matches the wordmark in the Photoshop banner. 600 is the logo lockup, 700
+// is the footer wordmark; 500 was being downloaded and never used.
 const poppins = Poppins({
   subsets: ['latin'],
-  weight: ['500', '600', '700'],
+  weight: ['600', '700'],
   variable: '--font-poppins',
   display: 'swap',
 });

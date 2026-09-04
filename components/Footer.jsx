@@ -27,8 +27,7 @@ export function Footer() {
           <div>
             <Logo />
             <p className="text-small text-ink-2 mt-5 max-w-[24ch]">
-              A YouTube downloader that respects your timeline, your bandwidth and your
-              privacy.
+              A blazing fast, minimalist desktop YouTube Video Downloader and yt-dlp GUI wrapper for Mac, Windows, and Linux
             </p>
 
             <div className="mt-6 flex flex-wrap gap-2">

@@ -4,13 +4,104 @@ import { useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ChevronDown, Pause, Search, Download } from 'lucide-react';
 import { Container, Section } from './ui';
-import { GitHubIcon } from './icons';
 
 const URL_TEXT = 'https://youtu.be/LXb3EKWsInQ?si=D1xP5yIw-M_CR_PD';
 const TOTAL_GB = 1.06;
 const SPEED = 6.22; // MB/s
 
 const phase = (p, from, to) => Math.min(1, Math.max(0, (p - from) / (to - from)));
+
+/*
+  Everything below is chrome that never changes, hoisted out of the render.
+
+  Scroll drives two pieces of state through this component, and each of them
+  settles on a new integer roughly a hundred times across the section — so the
+  window used to rebuild its entire element tree, lucide icons and all, a
+  hundred times per pass. These are created once; React compares the element
+  reference, sees it is identical and skips the subtree entirely. Only the
+  four things that actually read `typed`/`pct` are rebuilt now.
+*/
+const THUMB = (
+  <div className="dlf-thumb">
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img
+      src="/costa-rica.jpg"
+      alt=""
+      className="dlf-thumb-img"
+      loading="lazy"
+      decoding="async"
+      onError={(e) => {
+        e.currentTarget.style.display = 'none';
+      }}
+    />
+  </div>
+);
+
+const SELECTS = (
+  <div className="dlf-selects">
+    <span className="dlf-select">
+      MP4 (Video)
+      <ChevronDown className="size-[1.05em] shrink-0" strokeWidth={2} />
+    </span>
+    <span className="dlf-select">
+      2160p60
+      <ChevronDown className="size-[1.05em] shrink-0" strokeWidth={2} />
+    </span>
+  </div>
+);
+
+const ACTIONS = (
+  <>
+    <span className="dlf-btn">
+      <Pause className="size-[1.05em]" strokeWidth={2.2} />
+      Pause
+    </span>
+    <span className="dlf-btn dlf-btn-cancel">Cancel</span>
+  </>
+);
+
+const BACK = (
+  <p className="dlf-back">
+    <ArrowLeft className="size-[1em]" strokeWidth={2} />
+    Back
+  </p>
+);
+
+/* The app's own mark, not a GitHub link — this is the product window, so the
+   corner belongs to the product. Masked rather than drawn as an <img> so it
+   inherits .dlf-icon's colour alongside the lucide glyphs beside it. */
+const FORGE_TAB = (
+  <span className="dlf-icon">
+    <span className="dlf-mark" />
+  </span>
+);
+
+const DETAILS = (
+  <div className="dlf-right">
+    <p className="dlf-title">COSTA RICA IN 4K 60fps HDR (ULTRA HD)</p>
+    <div className="dlf-desc">
+      <p>
+        Sigma 150-500mm
+        <br />
+        Zeiss Classic 15mm
+        <br />
+        MOVI M10
+        <br />
+        Adobe Premiere and DaVinci Resolve
+      </p>
+      <p>
+        LICENSING &amp; BUSINESS INQUIRIES
+        <br />▶ contact@mysterybox.us
+      </p>
+      <p>
+        This video is subject to copyright owned by Mystery Box LLC. Any reproduction or
+        republication of all or part of this video is expressly prohibited, unless Mystery Box
+        has explicitly granted its prior written consent. All other rights reserved.
+      </p>
+      <p>Copyright © 2017 Mystery Box, LLC. All Rights Reserved.</p>
+    </div>
+  </div>
+);
 
 const mmss = (s) => {
   const m = Math.floor(s / 60);
@@ -121,48 +212,18 @@ export function DownloadFlow() {
                   <Download className="size-[1.15em]" strokeWidth={1.9} />
                   <span className="dlf-dot" data-on={pct > 0 ? 'on' : 'off'} />
                 </span>
-                <span className="dlf-icon">
-                  <GitHubIcon className="size-[1.15em]" />
-                </span>
+                {FORGE_TAB}
               </div>
 
               {/* ——— details view ——— */}
               <div className="dlf-body" data-ready={started ? 'on' : 'off'}>
-                <p className="dlf-back">
-                  <ArrowLeft className="size-[1em]" strokeWidth={2} />
-                  Back
-                </p>
+                {BACK}
 
                 <div className="dlf-grid">
                   <div className="dlf-left">
-                    <div className="dlf-thumb">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src="/costa-rica.jpg"
-                        alt=""
-                        className="dlf-thumb-img"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    </div>
-
-                    <div className="dlf-selects">
-                      <span className="dlf-select">
-                        MP4 (Video)
-                        <ChevronDown className="size-[1.05em] shrink-0" strokeWidth={2} />
-                      </span>
-                      <span className="dlf-select">
-                        2160p60
-                        <ChevronDown className="size-[1.05em] shrink-0" strokeWidth={2} />
-                      </span>
-                    </div>
-
-                    <span className="dlf-btn">
-                      <Pause className="size-[1.05em]" strokeWidth={2.2} />
-                      Pause
-                    </span>
-                    <span className="dlf-btn dlf-btn-cancel">Cancel</span>
+                    {THUMB}
+                    {SELECTS}
+                    {ACTIONS}
 
                     <div className="dlf-stats">
                       <div>
@@ -196,31 +257,7 @@ export function DownloadFlow() {
                     </div>
                   </div>
 
-                  <div className="dlf-right">
-                    <p className="dlf-title">COSTA RICA IN 4K 60fps HDR (ULTRA HD)</p>
-                    <div className="dlf-desc">
-                      <p>
-                        Sigma 150-500mm
-                        <br />
-                        Zeiss Classic 15mm
-                        <br />
-                        MOVI M10
-                        <br />
-                        Adobe Premiere and DaVinci Resolve
-                      </p>
-                      <p>
-                        LICENSING &amp; BUSINESS INQUIRIES
-                        <br />▶ contact@mysterybox.us
-                      </p>
-                      <p>
-                        This video is subject to copyright owned by Mystery Box LLC. Any
-                        reproduction or republication of all or part of this video is expressly
-                        prohibited, unless Mystery Box has explicitly granted its prior written
-                        consent. All other rights reserved.
-                      </p>
-                      <p>Copyright © 2017 Mystery Box, LLC. All Rights Reserved.</p>
-                    </div>
-                  </div>
+                  {DETAILS}
                 </div>
               </div>
             </motion.div>

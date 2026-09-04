@@ -30,7 +30,13 @@ export function Nav({ stars }) {
     <>
       <header
         className={clsx(
-          'fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,backdrop-filter] duration-300',
+          // backdrop-filter is deliberately NOT in the transition list.
+          // Ramping a 40px blur means re-blurring everything behind a
+          // full-width fixed bar on every frame for 300ms, which is one of
+          // the most expensive things you can ask Safari to do. The blur now
+          // arrives with the background instead of being animated in — at
+          // 12px of scroll, that reads the same.
+          'fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color] duration-300',
           scrolled
             ? 'border-line-subtle bg-bg/75 backdrop-blur-2xl'
             : 'border-transparent bg-transparent',

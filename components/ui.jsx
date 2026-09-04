@@ -17,10 +17,13 @@ export function Section({ id, beat = 'section', className, children }) {
     guarantees an even beat down the page. `beat` is kept for call-site
     readability; per-section overrides should not be reintroduced.
   */
+  /* One rhythm for every section; per-section overrides are deliberately not
+     reintroduced. Mobile runs tighter than desktop so the page reads as one
+     immersive flow rather than a stack of widely spaced blocks. */
   const pad = {
-    chapter: 'py-7 sm:py-8',
-    section: 'py-7 sm:py-8',
-    sub: 'py-7 sm:py-8',
+    chapter: 'py-4 sm:py-8',
+    section: 'py-4 sm:py-8',
+    sub: 'py-4 sm:py-8',
   }[beat];
 
   return (
