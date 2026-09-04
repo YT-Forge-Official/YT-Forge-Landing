@@ -1,78 +1,97 @@
-# YT-FORGE — landing page
+# YT-FORGE Landing Page
 
-The marketing site for YT-FORGE. A standalone Next.js app that lives inside the
-Electron repo but installs and builds independently, so it can deploy to Vercel
-(or anywhere) without dragging the desktop app's toolchain along.
+This repository contains the marketing and landing page for **YT-FORGE**. 
+
+It is a standalone Next.js application that resides within the main Electron repository but is decoupled from the desktop app's build process. This allows for independent deployment to platforms like Vercel without requiring the desktop toolchain.
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher recommended)
+- npm
+
+### Installation & Local Development
+
+Navigate to the `landing` directory and install the dependencies:
 
 ```bash
 cd landing
 npm install
-npm run dev      # http://localhost:3000
-npm run build    # static prerender
-npm start        # serve the build
 ```
 
-From the repo root you can also use `npm run landing:dev` / `npm run landing:build`.
+To start the local development server:
 
-> **Do not run `next build` while `next dev` is running.** They share `.next/`
-> and the dev server will start throwing `__webpack_modules__ is not a function`.
-> Stop dev first, or `rm -rf .next` and restart it afterwards.
-
-## Layout
-
+```bash
+npm run dev
 ```
+The site will be available at `http://localhost:3000`.
+
+To build and serve the production version locally:
+```bash
+npm run build
+npm start
+```
+
+*Note: From the repository root, you can alternatively use `npm run landing:dev` and `npm run landing:build`.*
+
+> **⚠️ Warning:** Avoid running `npm run build` while the development server (`npm run dev`) is active. Both processes share the `.next/` directory, which can cause Webpack errors (e.g., `__webpack_modules__ is not a function`). If this occurs, stop the development server, remove the `.next` directory (`rm -rf .next`), and restart.
+
+## Project Structure
+
+```text
 app/
-  layout.jsx      fonts + metadata (OG, Twitter, icons)
-  page.jsx        section order — the whole page is assembled here
-  globals.css     design tokens, composites, keyframes
-components/       one file per section, plus ui.jsx primitives
+├── layout.jsx      # Global fonts, metadata (OG, Twitter, icons)
+├── page.jsx        # Main page assembly and section ordering
+└── globals.css     # Global styles, design tokens, and keyframes
+components/         # Page sections and UI primitives (ui.jsx)
 lib/
-  site.js         SINGLE SOURCE OF TRUTH — version, links, copy blocks
-  github.js       star/fork counts, revalidated hourly
-  reveal.js       one IntersectionObserver for every [data-reveal]
-public/           icon.png, banner.png, screenshot1.png, screenshot2.png
+├── site.js         # Single source of truth for version, links, and copy
+├── github.js       # GitHub API integration for star/fork counts (revalidated hourly)
+└── reveal.js       # IntersectionObserver logic for scroll animations ([data-reveal])
+public/             # Static assets (icons, banners, screenshots)
 ```
 
-## Shipping a new app version
+## Release Management
 
-Bump `VERSION` in `lib/site.js`. Every download URL, the hero chip, the CTA
-sub-label and the footer follow from it — nothing else to touch, as long as the
-GitHub release assets keep the casing electron-builder emits (`YT-Forge`, not
-`YT-FORGE`):
+When shipping a new version of the YT-FORGE desktop application, you must update the version number on the landing page to ensure the download links serve the correct assets.
 
-```
-YT-Forge-<version>-arm64.dmg          macOS Apple Silicon
-YT-Forge-Setup-<version>.exe          Windows x64 + ARM
-YT-Forge-<version>.AppImage           Linux x64
-YT-Forge-<version>-arm64.AppImage     Linux ARM
-```
+1. Open `lib/site.js`.
+2. Update the `VERSION` constant. 
 
-If a release adds a platform (an Intel Mac build, say), add it to that
-platform's `builds` array in `PLATFORMS` — the download card renders extra
-builds as secondary links under the primary button automatically.
+This single change will update all download URLs, hero text, CTA labels, and footer references.
 
-## Design system
+**Important:** The download links rely on the specific casing output by `electron-builder` (`YT-Forge`, not `YT-FORGE`). Ensure the GitHub release assets match this format:
 
-Monochrome, with one ember accent (`--color-ember: #ff6a2b`) held under roughly
-5% of surface area. Everything lives in `app/globals.css`:
+- `YT-Forge-<version>-arm64.dmg` (macOS Apple Silicon)
+- `YT-Forge-Setup-<version>.exe` (Windows x64 + ARM)
+- `YT-Forge-<version>.AppImage` (Linux x64)
+- `YT-Forge-<version>-arm64.AppImage` (Linux ARM)
 
-- **Surfaces** `--color-bg` `#08090a` → `--color-bg-hover` `#1c1d20`
-- **Hairlines** `--color-line-subtle` (6%) → `--color-line-hover` (24%)
-- **Ink** `--color-ink` `#f7f8f8` → `--color-ink-4` `#5d6067`
-- **Type** Geist for text, Geist Mono for labels and numbers, Poppins for the
-  wordmark only (it matches the Photoshop banner). Tight negative tracking is
-  the whole personality: `-0.042em` at hero size.
-- **Radii** 6px controls, 10px cards, 14px panels. Nothing rounder.
-- **Composites** `.panel` `.btn` `.eyebrow` `.halftone` `.rule` — these sit in
-  `@layer components` so Tailwind utilities still override them.
+*To add a new platform (e.g., an Intel Mac build), append it to the corresponding `builds` array within the `PLATFORMS` object in `lib/site.js`. The UI will automatically render it as a secondary download link.*
 
-Add a scroll reveal by putting `data-reveal` on any element, and stagger it with
-`style={{ '--reveal-delay': '120ms' }}`. `prefers-reduced-motion` short-circuits
-every animation on the page.
+## Design System
 
-## Deploying
+The design utilizes a monochrome palette with a single accent color (`--color-ember: #ff6a2b`), applied sparingly to roughly 5% of the UI. All styling configuration is located in `app/globals.css`.
 
-Point Vercel at this subdirectory (set **Root Directory** to `landing`). The page
-is fully static apart from the hourly GitHub stats revalidation. Update
-`metadataBase` in `app/layout.jsx` once the real domain is live, or the OG image
-URLs will keep pointing at the placeholder.
+- **Surfaces:** `--color-bg` (`#08090a`) to `--color-bg-hover` (`#1c1d20`)
+- **Hairlines:** `--color-line-subtle` (6% opacity) to `--color-line-hover` (24% opacity)
+- **Typography:**
+  - Body: Geist
+  - Labels/Numbers: Geist Mono
+  - Wordmark: Poppins (matches the primary banner)
+- **Radii:** 6px (controls), 10px (cards), 14px (panels)
+- **Composites:** `.panel`, `.btn`, `.eyebrow`, `.halftone`, `.rule` are defined in `@layer components` to allow Tailwind utility overrides.
+
+### Animations
+To add a scroll reveal animation, apply the `data-reveal` attribute to an element. You can stagger animations using `style={{ '--reveal-delay': '120ms' }}`. 
+
+*Note: All animations respect the `prefers-reduced-motion` media query.*
+
+## Deployment
+
+The application is deployed to Vercel. Since it operates as a standalone Next.js project within the larger repository, Vercel's **Root Directory** must be configured to `./`.
+
+Deployments are triggered automatically upon pushing to the `main` branch. The site is primarily statically generated, with hourly revalidation for GitHub statistics.
+
+**Configuration Requirements:**
+- The `metadataBase` in `app/layout.jsx` must exactly match the production domain to ensure Open Graph and Twitter image URLs resolve correctly.

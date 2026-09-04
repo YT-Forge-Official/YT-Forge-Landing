@@ -1,0 +1,7 @@
+# Everything is crawlable except Next's build output, which is hashed JS and
+# CSS with nothing to index.
+User-agent: *
+Allow: /
+Disallow: /_next/
+
+Sitemap: https://yt-forge.com/sitemap.xml

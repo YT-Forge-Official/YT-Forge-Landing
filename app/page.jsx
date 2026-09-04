@@ -1,5 +1,6 @@
 import { getRepoStats, formatCount } from '@/lib/github';
 import { Reveal } from '@/components/Reveal';
+import { StructuredData } from '@/components/StructuredData';
 import { Nav } from '@/components/Nav';
 import { Hero } from '@/components/Hero';
 import { DownloadFlow } from '@/components/DownloadFlow';
@@ -18,6 +19,7 @@ export default async function Page() {
 
   return (
     <>
+      <StructuredData stats={stats} />
       <Reveal />
       {/* This wrapper is the sheet that slides up to reveal the footer
           pinned beneath it — it must carry an opaque background. */}

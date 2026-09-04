@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono, Poppins } from 'next/font/google';
 import './globals.css';
 import { REPO_URL } from '@/lib/site';
+import { SITE_URL } from '@/lib/seo';
 
 const geist = Geist({
   subsets: ['latin'],
@@ -24,10 +25,14 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  metadataBase: new URL('https://yt-forge.vercel.app'),
+  metadataBase: new URL(SITE_URL),
+  // One address for this page. Without it the apex, the www host and the
+  // *.vercel.app deploy URL are three indexable copies competing with
+  // each other, and Google picks the winner instead of you.
+  alternates: { canonical: '/' },
   title: 'YT-FORGE — YouTube video downloader, finally done right',
   description:
-    'A fast, open-source desktop YouTube downloader that prefers H.264 + AAC, so your files drop straight onto a Premiere, Final Cut or Resolve timeline. macOS, Windows and Linux.',
+    'A fast, open-source YouTube downloader for macOS, Windows and Linux. Prefers H.264 + AAC, so files drop straight onto a Premiere or Resolve timeline.',
   keywords: [
     'youtube downloader',
     'yt-dlp gui',
@@ -42,15 +47,33 @@ export const metadata = {
     description:
       'Editor-friendly YouTube downloads. H.264 + AAC by default, built-in conversion, playlist batching. Open source, no ads, no tracking.',
     type: 'website',
-    images: [{ url: '/banner.png', width: 1024, height: 848, alt: 'YT-FORGE' }],
+    url: '/',
+    siteName: 'YT-FORGE',
+    locale: 'en_US',
+    images: [
+      {
+        url: '/og-banner.png',
+        width: 1200,
+        height: 630,
+        alt: 'YT-FORGE — YouTube video downloader, finally done right',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'YT-FORGE — YouTube video downloader, finally done right',
     description: 'Editor-friendly YouTube downloads. H.264 + AAC by default. Open source.',
-    images: ['/banner.png'],
+    images: ['/og-banner.png'],
   },
   icons: { icon: '/icon.png', apple: '/icon.png' },
+  // Defaults cap the text snippet and preview image Google may show. Opting
+  // into the large variants is what makes a result look like a product card
+  // instead of a bare blue link.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+  },
 };
 
 export const viewport = {
