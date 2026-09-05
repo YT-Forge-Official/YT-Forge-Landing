@@ -85,10 +85,7 @@ export function Footer() {
             modify or circumvent that software, and it does not break access controls. Download
             only content you have permission to access or distribute.
           </p>
-          <p className="text-[11px] text-ink-4/60 max-w-[80ch]">
-            All product names, logos, and brands are property of their respective owners. Use of 
-            these names, logos, and brands does not imply endorsement.
-          </p>
+         
         </div>
       </Container>
 
