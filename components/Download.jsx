@@ -27,30 +27,56 @@ export function Download() {
                 key={p.id}
                 data-reveal
                 style={{ '--reveal-delay': `${i * 90}ms` }}
-                className="panel panel-interactive group flex flex-col p-6 sm:p-7"
+                className="panel panel-interactive group flex flex-wrap items-center gap-3 p-4 md:flex-col md:flex-nowrap md:items-stretch md:gap-0 md:p-7"
               >
-                <span className="border-line-subtle flex size-11 items-center justify-center rounded-[var(--radius-control)] border bg-white/[0.025]">
+                <span className="border-line-subtle flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-control)] border bg-white/[0.025] md:size-11">
                   <Icon className="text-ink size-5" />
                 </span>
 
-                <h3 className="text-sub mt-6 font-medium">{p.name}</h3>
-                <p className="text-small text-ink-2 mt-1.5">{p.tagline}</p>
-                <p className="text-meta text-ink-4 mt-1 font-[family-name:var(--font-geist-mono)] uppercase">
-                  {p.note}
-                </p>
+                {/* min-w-0 so a long note ellipses inside the row instead of
+                    shoving the button off the card. */}
+                <div className="min-w-0 flex-1 md:mt-6 md:flex-none">
+                  <h3 className="text-card font-medium md:text-sub">{p.name}</h3>
 
-                <a href={primary.href} className="btn btn-primary mt-7 w-full">
+                  {/* Phones get ONE meta line: the file type, then who the
+                      build is for. The tagline and the build label stacked
+                      underneath it say the same fact three ways, and that
+                      repetition is most of what made these cards so tall. */}
+                  <p className="text-small text-ink-2 mt-0.5 truncate md:hidden">
+                    <span className="font-[family-name:var(--font-geist-mono)]">{p.ext}</span>
+                    <span className="text-ink-4"> · </span>
+                    {p.note}
+                  </p>
+
+                  <p className="text-small text-ink-2 max-md:hidden md:mt-1.5">{p.tagline}</p>
+                  <p className="text-meta text-ink-4 mt-1 font-[family-name:var(--font-geist-mono)] uppercase max-md:hidden">
+                    {p.note}
+                  </p>
+                </div>
+
+                {/* Square on a phone. "Download" is already the section
+                    heading three lines up and the arrow carries the rest, so
+                    the word was buying nothing and costing the meta line the
+                    width it needs. Still 44px, so the tap target is intact,
+                    and the label moves to aria-label rather than being lost —
+                    which also disambiguates three identical links for a
+                    screen reader on desktop. */}
+                <a
+                  href={primary.href}
+                  aria-label={`Download YT-FORGE for ${p.name}`}
+                  className="btn btn-primary shrink-0 max-md:size-11 max-md:px-0 md:mt-7 md:w-full"
+                >
                   <DownloadIcon className="size-4" />
-                  Download
+                  <span className="max-md:hidden">Download</span>
                 </a>
 
                 {extras.length ? (
-                  <ul className="mt-3 space-y-1">
+                  <ul className="space-y-1 max-md:w-full md:mt-3">
                     {extras.map((b) => (
                       <li key={b.href}>
                         <a
                           href={b.href}
-                          className="text-small text-ink-3 hover:text-ink flex items-center gap-1.5 transition-colors"
+                          className="text-small text-ink-3 hover:text-ink flex items-center gap-1.5 transition-colors max-md:border-line-subtle max-md:border-t max-md:pt-3"
                         >
                           {b.label}
                           <ArrowUpRight className="size-3" />
@@ -60,7 +86,7 @@ export function Download() {
                   </ul>
                 ) : null}
 
-                <p className="text-meta text-ink-4 mt-auto pt-6 font-[family-name:var(--font-geist-mono)] uppercase">
+                <p className="text-meta text-ink-4 mt-auto pt-6 font-[family-name:var(--font-geist-mono)] uppercase max-md:hidden">
                   {primary.label}
                 </p>
               </div>
