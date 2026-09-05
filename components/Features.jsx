@@ -265,32 +265,32 @@ function PlaylistQueue() {
       <div className="border-line-subtle mt-4 rounded-[8px] border bg-white/[0.02] px-3.5 py-3">
         <div className="flex items-baseline justify-between">
           <span className="text-small text-ink-2">Downloading 2 of 3</span>
-          <span className="text-meta text-ink-3 font-[family-name:var(--font-geist-mono)]">35%</span>
+          <span className="text-meta text-ink-3 font-[family-name:var(--font-geist-mono)]">37%</span>
         </div>
-        <Bar pct={35} className="mt-2" />
+        <Bar pct={37} className="mt-2" />
       </div>
 
       {/* rows */}
       <div className="mt-4 space-y-1.5">
         <Row
-          thumb="/thumb-japan.jpg"
-          title="Japan in 8K ULTRA HD - Land of The Rising Sun (60 FPS)"
-          meta="4320p60 · 1.12 GB"
-          dur="5:30"
+          thumb="https://i.ytimg.com/vi/G4v1MITQbPk/maxresdefault.jpg"
+          title="Take CSE Notes the Right Way | Handwritten, Digital & Coding Notes Explained"
+          meta="1080p60 · 285 MB"
+          dur="7:34"
           state="done"
         />
         <Row
-          thumb="/thumb-tesla.jpg"
-          title="I Made a Bet with Tesla"
-          meta="2160p · 709 MB"
-          dur="11:05"
+          thumb="https://i.ytimg.com/vi/0lEWeVPD3nM/maxresdefault.jpg"
+          title="My first 24-Hour Hackathon Experience | SST Buildverse 2025"
+          meta="1080p60 · 420 MB"
+          dur="12:45"
           state="active"
         />
         <Row
-          thumb="/thumb-gta6.jpg"
-          title="GTA 6 (Grand Theft Auto 6) - Official Extended Gameplay"
-          meta="2160p · 2.20 GB"
-          dur="26:48"
+          thumb="https://i.ytimg.com/vi/ZsdgnZGbnzQ/maxresdefault.jpg"
+          title="Building a Robot That Plays Soccer | SST College Fest Yugaantar Vlog ft. @Sankhokun & @chaiyeahhhh"
+          meta="1080p60 · 510 MB"
+          dur="16:33"
           state="queued"
         />
       </div>
@@ -351,8 +351,8 @@ function Row({ thumb, title, meta, dur, state }) {
           <div className="border-line-subtle mt-2.5 grid grid-cols-3 gap-2 rounded-[8px] border bg-white/[0.015] px-2 py-2.5 text-center">
             {[
               ['Speed', '10.42 MB/s'],
-              ['Elapsed', '00:26'],
-              ['Time left', '00:42'],
+              ['Elapsed', '00:15'],
+              ['Time left', '00:25'],
             ].map(([k, v]) => (
               <div key={k}>
                 <p className="text-ink-4 font-[family-name:var(--font-geist-mono)] text-[9px] tracking-[0.09em] uppercase">
@@ -368,7 +368,7 @@ function Row({ thumb, title, meta, dur, state }) {
             <div className="flex items-baseline justify-between">
               <span className="text-small text-ink-2">Downloading…</span>
               <span className="text-meta text-ink-4 font-[family-name:var(--font-geist-mono)]">
-                38.2% — 270.8 MB / 709 MB
+                38.2% — 160.4 MB / 420 MB
               </span>
             </div>
             <Bar pct={38.2} className="mt-2" />

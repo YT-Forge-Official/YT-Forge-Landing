@@ -1,4 +1,6 @@
 import { Geist, Geist_Mono, Poppins } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { REPO_URL } from '@/lib/site';
 import { SITE_URL } from '@/lib/seo';
@@ -104,6 +106,20 @@ export default function RootLayout({ children }) {
     >
       <body className="font-[family-name:var(--font-geist)] antialiased" suppressHydrationWarning>
         {children}
+
+        {/*
+          Both beacons post to /_vercel/insights and /_vercel/speed-insights on
+          the SAME origin the page was served from, which is what makes them
+          domain-agnostic: they follow whatever host is in the address bar, so
+          yt-forge.com and the *.vercel.app preview URLs both report into this
+          one project. Nothing here needs the domain written down.
+
+          Neither reports outside a real deployment, and there is no key or
+          env var to keep in sync — the project is identified by the
+          deployment serving the request, not by anything committed here.
+        */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

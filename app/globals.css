@@ -1327,9 +1327,6 @@ body {
        pickers and the progress all still carry their meaning at this size. */
     .dlf-desc { display: none; }
 
-    /* Capped, not cropped away: object-fit keeps the poster centred while the
-       box gives back the vertical third it was taking. */
-    .dlf-thumb { aspect-ratio: auto; height: 13em; }
   }
 
   /* Phones: the canvas narrows again, so the controls give up the last of
@@ -1341,7 +1338,6 @@ body {
     }
 
     .dlf-back { margin-bottom: 0.85em; }
-    .dlf-thumb { height: 10.5em; }
 
     .dlf-select { height: 2.7em; padding: 0 0.75em; }
     .dlf-selects { gap: 0.55em; margin-top: 0.85em; }

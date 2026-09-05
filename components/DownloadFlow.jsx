@@ -5,8 +5,8 @@ import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion 
 import { ArrowLeft, ChevronDown, Pause, Search, Download } from 'lucide-react';
 import { Container, Section } from './ui';
 
-const URL_TEXT = 'https://youtu.be/LXb3EKWsInQ?si=D1xP5yIw-M_CR_PD';
-const TOTAL_GB = 1.06;
+const URL_TEXT = 'https://youtu.be/l5OZu-IrXpw';
+const TOTAL_GB = 1.12;
 const SPEED = 6.22; // MB/s
 
 const phase = (p, from, to) => Math.min(1, Math.max(0, (p - from) / (to - from)));
@@ -25,7 +25,7 @@ const THUMB = (
   <div className="dlf-thumb">
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img
-      src="/costa-rica.jpg"
+      src="https://i.ytimg.com/vi/l5OZu-IrXpw/maxresdefault.jpg"
       alt=""
       className="dlf-thumb-img"
       loading="lazy"
@@ -44,7 +44,7 @@ const SELECTS = (
       <ChevronDown className="size-[1.05em] shrink-0" strokeWidth={2} />
     </span>
     <span className="dlf-select">
-      2160p60
+      1608p (4k)
       <ChevronDown className="size-[1.05em] shrink-0" strokeWidth={2} />
     </span>
   </div>
@@ -78,27 +78,23 @@ const FORGE_TAB = (
 
 const DETAILS = (
   <div className="dlf-right">
-    <p className="dlf-title">COSTA RICA IN 4K 60fps HDR (ULTRA HD)</p>
+    <p className="dlf-title">SINGULARITY - Painterly Space Adventure</p>
     <div className="dlf-desc">
       <p>
-        Sigma 150-500mm
+        Blender Open Movie
         <br />
-        Zeiss Classic 15mm
-        <br />
-        MOVI M10
-        <br />
-        Adobe Premiere and DaVinci Resolve
+        Made with Blender 4.0
       </p>
       <p>
-        LICENSING &amp; BUSINESS INQUIRIES
-        <br />▶ contact@mysterybox.us
+        Directed by Colin Levy
+        <br />
+        Produced by Blender Studio
       </p>
       <p>
-        This video is subject to copyright owned by Mystery Box LLC. Any reproduction or
-        republication of all or part of this video is expressly prohibited, unless Mystery Box
-        has explicitly granted its prior written consent. All other rights reserved.
+        Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
+        You are free to share and adapt this material for any purpose.
       </p>
-      <p>Copyright © 2017 Mystery Box, LLC. All Rights Reserved.</p>
+      <p>Copyright © Blender Foundation. All Rights Reserved.</p>
     </div>
   </div>
 );

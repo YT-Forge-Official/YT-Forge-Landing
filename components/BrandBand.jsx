@@ -356,10 +356,10 @@ export function BrandBand() {
           <div ref={chipRef} className="drag-file">
             <span className="drag-file-thumb">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/costa-rica.jpg" alt="" loading="lazy" decoding="async" />
+              <img src="https://i.ytimg.com/vi/l5OZu-IrXpw/maxresdefault.jpg" alt="" loading="lazy" decoding="async" />
             </span>
             <span className="drag-file-text">
-              <span className="drag-file-name">Costa Rica 4K.mp4</span>
+              <span className="drag-file-name">SINGULARITY.mp4</span>
               <span className="drag-file-meta">H.264 · AAC</span>
             </span>
             <span className="drag-file-badge" aria-hidden>

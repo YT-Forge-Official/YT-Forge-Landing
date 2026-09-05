@@ -34,14 +34,14 @@ import {
 
 const QUEUE = [
   {
-    thumb: '/thumb-blackclover.jpg',
-    title: 'Asta is BACK! ⚔️| Black Clover Second Season: Official Trailer | Crunchyroll India',
-    meta: 'Queued · ~31.99 MB',
+    thumb: 'https://i.ytimg.com/vi/PVGeM40dABA/maxresdefault.jpg',
+    title: 'Coffee Run - Blender Open Movie',
+    meta: 'Queued · ~85 MB',
   },
   {
-    thumb: '/thumb-doomsday.jpg',
-    title: 'Avengers: Doomsday | Official Trailer | In Theaters December 18',
-    meta: 'Queued · ~114.95 MB',
+    thumb: 'https://i.ytimg.com/vi/u4R9rF8tyX8/maxresdefault.jpg',
+    title: 'The College Where Building a Startup Is Mandatory | Scaler’s AI & Business Explained',
+    meta: 'Queued · ~350 MB',
   },
 ];
 
@@ -113,9 +113,9 @@ export function DownloadsWindow() {
 
           {/* the one in flight: its own progress bar and a pause it can take */}
           <div className="dw-row dw-row-card">
-            <Thumb src="/thumb-fold8.jpg" />
+            <Thumb src="https://i.ytimg.com/vi/u9lj-c29dxI/maxresdefault.jpg" />
             <div className="dw-body">
-              <p className="dw-title">All-new Unfolds | Galaxy Z Fold8 Ultra and Fold8 | Samsung</p>
+              <p className="dw-title">WING IT! - Blender Open Movie</p>
               <p className="dw-meta">
                 <LoaderCircle className="dw-i" strokeWidth={2} />
                 13% · 2.47 MB/s
@@ -153,10 +153,10 @@ export function DownloadsWindow() {
           {/* Finished rows trade the progress bar for what was actually
               written to disk, and Pause/Skip for Reveal in Folder. */}
           <div className="dw-row">
-            <Thumb src="/thumb-ae.jpg" />
+            <Thumb src="https://i.ytimg.com/vi/_cMxraX_5RE/maxresdefault.jpg" />
             <div className="dw-body">
               <p className="dw-title">
-                The Best Click Visual Effects Used in SaaS Videos | After Effects Tutorial
+                Sprite Fright - Blender Open Movie
               </p>
               <p className="dw-meta dw-meta-mono">1080p60 (VP9 → H.264) (MP4)</p>
             </div>
