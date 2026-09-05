@@ -30,7 +30,7 @@ export function SourceAvailable({ stats }) {
           <div aria-hidden className="halftone pointer-events-none absolute inset-0 opacity-50" />
 
           <div className="relative grid grid-cols-1 gap-10 p-7 sm:p-10 lg:grid-cols-12 lg:gap-14">
-            <div className="lg:col-span-6">
+            <div className="lg:col-span-6 flex flex-col items-center text-center lg:items-start lg:text-left">
               <p className="eyebrow" data-reveal>
                 Source available
               </p>
@@ -44,12 +44,12 @@ export function SourceAvailable({ stats }) {
                 helps other people find it too :)
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3" data-reveal>
-                <a href={REPO_URL} target="_blank" rel="noreferrer" className="btn btn-primary">
+              <div className="mt-8 flex flex-col sm:flex-row flex-wrap gap-3 w-full sm:w-auto" data-reveal>
+                <a href={REPO_URL} target="_blank" rel="noreferrer" className="btn btn-primary w-full sm:w-auto justify-center">
                   <GitHubIcon />
                   Star on GitHub
                 </a>
-                <a href={ISSUES_URL} target="_blank" rel="noreferrer" className="btn btn-ghost">
+                <a href={ISSUES_URL} target="_blank" rel="noreferrer" className="btn btn-ghost w-full sm:w-auto justify-center">
                   Report an issue
                   <ArrowUpRight className="size-3.5" />
                 </a>
@@ -58,7 +58,7 @@ export function SourceAvailable({ stats }) {
             </div>
 
             <div className="lg:col-span-6">
-              <div className="border-line-subtle grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-card)] border bg-white/[0.012]">
+              <div className="border-line-subtle grid grid-cols-1 sm:grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-card)] border bg-white/[0.012]">
                 {tiles.map((t, i) => (
                   <a
                     key={t.label}
@@ -67,7 +67,7 @@ export function SourceAvailable({ stats }) {
                     rel="noreferrer"
                     data-reveal
                     style={{ '--reveal-delay': `${i * 70}ms` }}
-                    className="border-line-subtle hover:bg-bg-hover group p-6 transition-colors duration-200 [&:nth-child(even)]:border-l [&:nth-child(n+3)]:border-t"
+                    className="border-line-subtle hover:bg-bg-hover group p-6 transition-colors duration-200 border-t first:border-t-0 sm:border-t-0 sm:[&:nth-child(even)]:border-l sm:[&:nth-child(n+3)]:border-t"
                   >
                     <div className="flex items-center justify-between">
                       <t.icon className="text-ink-3 size-3.5" />

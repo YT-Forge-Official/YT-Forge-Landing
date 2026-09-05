@@ -103,7 +103,7 @@ export function Download() {
           <div className="rule" />
 
           <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-16">
-            <div>
+            <div className="text-center lg:text-left flex flex-col items-center lg:items-start">
               <p className="eyebrow">Security notice</p>
               <p className="text-body text-ink-2 mt-4 max-w-[46ch]">
                 This is an independent source-available app, so it does not ship with an enterprise
@@ -113,20 +113,25 @@ export function Download() {
             </div>
 
             <div>
-              <div className="grid gap-8 sm:grid-cols-2">
+              <div className="grid gap-8 sm:grid-cols-2 text-center sm:text-left">
                 {FIRST_RUN.map((r) => (
-                  <div key={r.os}>
+                  <div key={r.os} className="flex flex-col items-center sm:items-start">
                     <p className="text-small text-ink font-medium">{r.os}</p>
-                    <ol className="mt-3 space-y-1.5">
+                    <ol className="mt-4 sm:mt-3 flex flex-col sm:block space-y-2 sm:space-y-1.5 text-center sm:text-left">
                       {r.steps.map((step, i) => (
                         <li
                           key={step}
-                          className="text-small text-ink-2 flex items-baseline gap-2 font-[family-name:var(--font-geist-mono)]"
+                          className="text-small text-ink-2 flex flex-col sm:flex-row items-center sm:items-baseline gap-2 font-[family-name:var(--font-geist-mono)]"
                         >
-                          <span className="text-ink-4 shrink-0">
-                            {i === 0 ? '\u00A0' : '\u2192'}
+                          {i !== 0 && (
+                            <span className="text-ink-4 shrink-0 sm:hidden">
+                              {'\u2193'}
+                            </span>
+                          )}
+                          <span className="text-ink-4 shrink-0 w-3 text-right hidden sm:inline-block">
+                            {i === 0 ? '' : '\u2192'}
                           </span>
-                          {step}
+                          <span>{step}</span>
                         </li>
                       ))}
                     </ol>
@@ -134,7 +139,7 @@ export function Download() {
                 ))}
               </div>
 
-              <div className="border-line-subtle mt-8 flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-t pt-5">
+              <div className="border-line-subtle mt-8 flex flex-col sm:flex-row items-center justify-between gap-x-8 gap-y-4 border-t pt-5 text-center sm:text-left">
                 <p className="text-small text-ink-4">Approval is needed once, not every launch.</p>
 
                 <div className="flex flex-wrap gap-x-7 gap-y-3">

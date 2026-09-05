@@ -24,13 +24,13 @@ export function Footer() {
             to say. The project half is a masthead and a short link list. */}
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] lg:gap-8">
           {/* ——— the project ——— */}
-          <div>
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
             <Logo />
             <p className="text-small text-ink-2 mt-5 max-w-[24ch]">
               A blazing fast, minimalist desktop video downloader and yt-dlp GUI wrapper for Mac, Windows, and Linux
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-2">
+            <div className="mt-6 flex flex-wrap justify-center lg:justify-start gap-2">
               <a
                 href={REPO_URL}
                 target="_blank"
@@ -51,7 +51,7 @@ export function Footer() {
             </div>
 
             <p className="eyebrow mt-8">Built on</p>
-            <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2.5">
+            <ul className="mt-4 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2.5">
               {BUILT_ON.map((l) => (
                 <li key={l.label}>
                   <a
@@ -79,11 +79,17 @@ export function Footer() {
 
         <div className="rule my-8" />
 
-        <p className="text-small text-ink-4 max-w-[80ch]">
-          YT-FORGE is a graphical interface for the open-source yt-dlp project. It does not
-          modify or circumvent that software, and it does not break access controls. Download
-          only content you have permission to access or distribute.
-        </p>
+        <div className="flex flex-col gap-3 text-center lg:text-left items-center lg:items-start">
+          <p className="text-small text-ink-4 max-w-[80ch]">
+            YT-FORGE is a graphical interface for the open-source yt-dlp project. It does not
+            modify or circumvent that software, and it does not break access controls. Download
+            only content you have permission to access or distribute.
+          </p>
+          <p className="text-[11px] text-ink-4/60 max-w-[80ch]">
+            All product names, logos, and brands are property of their respective owners. Use of 
+            these names, logos, and brands does not imply endorsement.
+          </p>
+        </div>
       </Container>
 
       {/* The wordmark the page lifts off of. Clipped at the baseline so it
