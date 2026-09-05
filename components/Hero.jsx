@@ -1,23 +1,22 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { YT_DLP_URL, DOWNLOADS_FALLBACK, formatApprox } from '@/lib/site';
 import { Container } from './ui';
+import { RotatingWord } from './RotatingWord';
 
-/**
- * The hero is three stacked bands — nav clearance, stage, bar — and one size
- * token, `--mark`, that every gap is expressed against. Nothing here measures
- * the viewport directly, so the composition holds its proportions instead of
- * re-shuffling at each breakpoint.
- *
- * Two things are deliberately kept off the layout:
- *  · the parallax rides its own layer inside the mark, so it cannot fight the
- *    transform that positions the mark;
- *  · the pointer light is written as transforms on two already-composited
- *    layers, so it never triggers a React render, a style recalc or a repaint.
- */
+/* The app is yt-dlp underneath, so the headline names sites it actually
+   reaches rather than only the one it is best known for. Just the name moves;
+   the sentence around it is fixed. The breadth claim — the part no list of
+   five names can carry — is a hard figure in the spec bar instead, where the
+   page already keeps its facts.
+
+   Longest entry sets the headline's type size; see the note on .hero-title
+   before adding one longer than "Instagram". */
+const PLATFORMS = ['YouTube', 'Instagram', 'Twitter/X', 'TikTok', 'Facebook', 'Reddit'];
+
 export function Hero({ downloads }) {
   // A live figure when GitHub answered, the pinned floor when it did not.
   // Either way it is rounded down, so the strip can never overstate.
@@ -26,6 +25,15 @@ export function Hero({ downloads }) {
 
   const sectionRef = useRef(null);
   const reduce = useReducedMotion();
+
+  // The line masks clip the rise-in tightly, which would also shear the
+  // platform word's blur. Once the intro has played, the first line's clip box
+  // is let out — see `.masker-open`.
+  const [maskOpen, setMaskOpen] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setMaskOpen(true), 1550);
+    return () => clearTimeout(t);
+  }, []);
 
   // Progress through THIS section, not absolute page pixels — an 800px window
   // means something different on a phone and on a 4K display.
@@ -107,10 +115,14 @@ export function Hero({ downloads }) {
     <section id="top" ref={sectionRef} className="hero" data-lit="off">
       <div className="hero-stage">
         <Container className="relative z-10 text-center">
-          <h1 className="hero-title flex flex-col items-center">
-            <span className="masker block">
+          {/* Stretch, not items-center: the lines are centred by the inherited
+              text-align, and a shrink-to-fit line box would make "how much room
+              is there" circular for the rotating slot, which measures against
+              its nearest block ancestor. */}
+          <h1 className="hero-title flex flex-col">
+            <span className={maskOpen ? 'masker masker-open block' : 'masker block'}>
               <span className="hero-line block" style={{ '--d': '0ms' }}>
-                YouTube{' '}
+                <RotatingWord words={PLATFORMS} />{' '}
                 <span className="relative mx-0.5 inline-block px-2">
                   <span>downloads</span>
                   <motion.span
@@ -122,7 +134,6 @@ export function Hero({ downloads }) {
                     <span className="block px-2">downloads</span>
                   </motion.span>
                 </span>
-                
               </span>
             </span>
 
@@ -189,6 +200,18 @@ export function Hero({ downloads }) {
                   <Image src="/yt-dlp.png" alt="yt-dlp" width={500} height={500} />
                 </a>
               </span>
+            </div>
+
+            <div className="hero-spec-cell">
+              <span className="hero-spec-label">Sites Supported</span>
+              <a 
+                href="https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md"
+                target="_blank"
+                rel="noreferrer"
+                className="hero-spec-value"
+              >
+                1,000+
+              </a>
             </div>
 
             <div className="hero-spec-cell">

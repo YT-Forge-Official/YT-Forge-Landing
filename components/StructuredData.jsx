@@ -10,7 +10,9 @@ import { SITE_URL } from '@/lib/seo';
 
     SoftwareApplication  what the product IS — platforms, price, licence.
                          This is the node that earns an app-style rich result
-                         (price and rating shown under the link).
+                         (price and rating shown under the link). Free to use,
+                         but source-available rather than open source — the
+                         licence URL is the honest way to say that here.
     WebSite              what the domain is, and its canonical name.
     Organization         who publishes it, tied to the GitHub org so Google
                          can connect the site to the account behind it.
@@ -36,11 +38,14 @@ export function StructuredData({ stats }) {
       downloadUrl: LATEST_URL,
       installUrl: LATEST_URL,
       softwareHelp: `${REPO_URL}#readme`,
-      license: `${REPO_URL}/blob/main/LICENSE`,
       isAccessibleForFree: true,
       description:
-        'A fast, open-source desktop YouTube downloader that prefers H.264 + AAC, so files drop straight onto a Premiere, Final Cut or Resolve timeline.',
+        'A fast, source-available desktop video downloader for 1,000+ sites that prefers H.264 + AAC, so files drop straight onto a Premiere, Final Cut or Resolve timeline.',
+      // Named so the licence is a fact in the markup, not just a link a
+      // crawler has to go and read.
+      license: `${REPO_URL}/blob/main/LICENSE`,
       featureList: [
+        'Downloads from 1,000+ sites, anything yt-dlp reaches',
         'H.264 + AAC by default for editor-ready files',
         'Built-in ffmpeg conversion from VP9 and AV1',
         'Playlist batch downloads with per-item progress',

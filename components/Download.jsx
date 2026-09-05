@@ -80,7 +80,7 @@ export function Download() {
             <div>
               <p className="eyebrow">Security notice</p>
               <p className="text-body text-ink-2 mt-4 max-w-[46ch]">
-                This is an independent open-source app, so it does not ship with an enterprise
+                This is an independent source-available app, so it does not ship with an enterprise
                 code-signing certificate. Your operating system may show a warning the first
                 time you open it.
               </p>

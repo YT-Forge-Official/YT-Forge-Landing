@@ -107,7 +107,7 @@ export function Features() {
             n="08"
             icon={UpdateCheckIcon}
             title="yt-dlp updates itself"
-            body="It checks for a new version of yt-dlp on every launch, so downloads keep working when YouTube changes something."
+            body="It checks for a new version of yt-dlp on every launch, so downloads keep working when a site changes something."
             delay={80}
           />
         </div>

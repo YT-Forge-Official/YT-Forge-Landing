@@ -73,7 +73,7 @@ export function DownloadsWindow() {
         {/* ——— url bar ——— */}
         <div className="dw-top">
           <div className="dw-url">
-            <span className="dw-url-ph">Paste a YouTube URL…</span>
+            <span className="dw-url-ph">Paste a video URL…</span>
             <span className="dw-kbd">/</span>
           </div>
           <span className="dw-get">

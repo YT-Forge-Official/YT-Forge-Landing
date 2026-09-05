@@ -30,22 +30,28 @@ export const metadata = {
   // *.vercel.app deploy URL are three indexable copies competing with
   // each other, and Google picks the winner instead of you.
   alternates: { canonical: '/' },
-  title: 'YT-FORGE — YouTube video downloader, finally done right',
+  title: 'YT-FORGE — Universal video downloader, finally done right',
   description:
-    'A fast, open-source YouTube downloader for macOS, Windows and Linux. Prefers H.264 + AAC, so files drop straight onto a Premiere or Resolve timeline.',
+    'A fast, source-available video downloader for macOS, Windows and Linux. 1,000+ sites, and it prefers H.264 + AAC so files drop straight onto a Premiere or Resolve timeline.',
+  // Broad terms first, then the individual sites people actually type. The
+  // app reaches everything yt-dlp does, so naming a few is a sample, not
+  // the positioning — that lives in the title.
   keywords: [
-    'youtube downloader',
+    'video downloader',
+    'universal video downloader',
     'yt-dlp gui',
-    'h264 youtube download',
+    'h264 video download',
     'video downloader for editors',
-    'premiere pro youtube download',
-    'open source youtube downloader',
+    'premiere pro video download',
+    'youtube downloader',
+    'instagram video downloader',
+    'tiktok video downloader',
   ],
   authors: [{ name: 'Suja', url: REPO_URL }],
   openGraph: {
-    title: 'YT-FORGE — YouTube video downloader, finally done right',
+    title: 'YT-FORGE — Universal video downloader, finally done right',
     description:
-      'Editor-friendly YouTube downloads. H.264 + AAC by default, built-in conversion, playlist batching. Open source, no ads, no tracking.',
+      'Editor-friendly downloads from 1,000+ sites. H.264 + AAC by default, built-in conversion, playlist batching. No ads, no tracking.',
     type: 'website',
     url: '/',
     siteName: 'YT-FORGE',
@@ -55,14 +61,14 @@ export const metadata = {
         url: '/og-banner.png',
         width: 1200,
         height: 630,
-        alt: 'YT-FORGE — YouTube video downloader, finally done right',
+        alt: 'YT-FORGE — Universal video downloader, finally done right',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'YT-FORGE — YouTube video downloader, finally done right',
-    description: 'Editor-friendly YouTube downloads. H.264 + AAC by default. Open source.',
+    title: 'YT-FORGE — Universal video downloader, finally done right',
+    description: 'Editor-friendly downloads from 1,000+ sites. H.264 + AAC by default.',
     images: ['/og-banner.png'],
   },
   icons: { icon: '/icon.png', apple: '/icon.png' },

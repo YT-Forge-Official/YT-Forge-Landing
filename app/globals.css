@@ -307,13 +307,17 @@ body {
        which the old 0.34/0.5-gap pair was not: it over-reserved the ink by
        0.042*mark and only paid back half a gap, so the top always came up
        short. */
-    padding-bottom: calc(var(--mark) * 0.2976 + var(--gap));
-  }
+      padding-bottom: calc(var(--mark) * 0.2976 + (var(--gap) * 0.85));
+      }
 
   /* ——— display type ———
      Sized to fit its own longest line at every width, and held to one line,
      so the two-line composition is identical from 320px to 4K. */
   .hero-title {
+    /* Back at 7.4vw. The longest state of line one is "Instagram downloads" —
+       9.48em in Geist 500 at this tracking, plus 20px of pill padding — which
+       clears the container by 145px even at the 768px breakpoint. A longer
+       name in the rotation eats into that; re-measure before adding one. */
     font-size: clamp(1.5rem, 7.4vw, 5.25rem);
     line-height: 0.98;
     letter-spacing: -0.042em;
@@ -326,6 +330,94 @@ body {
   .hero-line {
     animation: line-rise 1.05s cubic-bezier(0.76, 0, 0.24, 1) both;
     animation-delay: var(--d, 0ms);
+  }
+
+  /* Let the first line's clip box out once the rise has finished, so the
+     platform word's blur can bleed past the baseline instead of being sheared
+     by the mask that made the rise possible. Half an em is enough for the
+     blur and far short of exposing the line below. */
+  .masker-open {
+    overflow: clip;
+    overflow-clip-margin: 0.6em;
+  }
+
+  /* ——— the rotating line ———
+     A box the phrasings pass through, sized to the one currently in it. Width
+     AND height, because a phrase that wraps is taller — on a phone the long
+     one does, and a slot that only tracked width would let it spill. Both
+     transition on the swap's own curve, so the composition travels with the
+     phrase rather than snapping after it. */
+  .rotword {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+    /* Wrapping is allowed and deliberate: the type is sized so the longest
+       phrase holds one line down to the tablet breakpoint, and below that
+       wrapping is the correct answer rather than an overflow. */
+    white-space: normal;
+    /* Deliberately NOT text-wrap: balance. The measured copy is a block box and
+       the painted one is a flex box; balance is not guaranteed to resolve the
+       same in both, and a phrase that wraps differently from how it was
+       measured would overflow the slot it was sized for. */
+    /* Height is reserved, not animated — only width ever moves. */
+    transition: width 0.62s cubic-bezier(0.33, 0, 0.2, 1);
+  }
+  /* Before the first measurement the size is the strut's own — nothing to
+     transition from, and animating out of `auto` would lurch. */
+  .rotword[data-measured='off'] { transition: none; }
+
+  /* Narrow screens: force the name onto its own line.
+
+     Left to wrap naturally, "Instagram downloads" takes two lines and "X
+     downloads" takes one — so the headline, and everything under it, jumped a
+     whole line once per loop. Below 580px no name fits beside "downloads"
+     anyway (the longest needs 513px of the 540 available at that width, and
+     less as the type shrinks with the viewport), so making the break explicit
+     costs nothing and every state is the same height. Above it, all five fit
+     on one line, which is equally consistent. */
+  @media (max-width: 580px) {
+    .rotword {
+      display: block;
+      margin-inline: auto;
+    }
+  }
+
+  .rotword-measure {
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  /* Shrink-wrapped, one per row, so each box is its own phrase's width — but
+     capped at the width the real line has, so a phrase too long for the screen
+     is measured at the size it will actually occupy, wrapped. */
+  .rotword-measure > span {
+    display: block;
+    width: max-content;
+    max-width: var(--rotword-limit, 100vw);
+  }
+
+  /* Holds the slot open until the measurements land. */
+  .rotword-strut { visibility: hidden; display: block; }
+
+  .rotword-stack { position: absolute; inset: 0; }
+  /* Each phrase is hung from the slot's centre line rather than stretched
+     across the slot. Both phrases are therefore concentric for the whole swap:
+     the only thing that separates them is vertical travel, so neither one
+     enters or leaves towards a side. */
+  .rotword-item {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    /* Centred in the reserved height, so a phrase that does not need the full
+       box sits in the middle of it rather than hanging from the top. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    will-change: transform, filter, opacity;
   }
 
   /* ——— the mark ———
@@ -531,13 +623,14 @@ body {
     white-space: nowrap;
     color: var(--color-ink-deck);
     text-shadow: 0 0 0 rgba(255, 255, 255, 0);
-    transition: text-shadow 0.45s var(--ease-out);
+    transition: text-shadow 0.45s var(--ease-out), color 0.45s var(--ease-out);
   }
 
   /* Just the value line breathes on hover — a faint bloom, no colour change
      and nothing else in the cell moves. */
   .hero-spec-value:hover {
-    text-shadow: 0 0 1.1rem rgba(255, 255, 255, 0.18);
+    color: var(--color-ink);
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.546);
   }
 
   .hero-spec-icon {
@@ -582,7 +675,10 @@ body {
 
   @media (min-width: 768px) {
     .hero-spec {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      /* Five since the site count joined the row. "FORMAT SUPPORT" is the
+         long label and still fits a 141px cell at the breakpoint; it wraps to
+         two lines rather than overflowing if a future label outgrows that. */
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       padding-block: 2.25rem;
     }
     /* One row: every cell but the first takes a left rule, and no cell takes

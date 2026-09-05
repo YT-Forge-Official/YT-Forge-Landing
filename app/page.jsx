@@ -8,7 +8,7 @@ import { BrandBand } from '@/components/BrandBand';
 import { Showcase } from '@/components/Showcase';
 import { Features } from '@/components/Features';
 import { Download } from '@/components/Download';
-import { OpenSource } from '@/components/OpenSource';
+import { SourceAvailable } from '@/components/SourceAvailable';
 import { Footer } from '@/components/Footer';
 
 export default async function Page() {
@@ -32,7 +32,7 @@ export default async function Page() {
           <Showcase />
           <Features />
           <Download />
-          <OpenSource stats={stats} />
+          <SourceAvailable stats={stats} />
         </main>
       </div>
       <Footer />

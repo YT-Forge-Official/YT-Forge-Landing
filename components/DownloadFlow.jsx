@@ -199,7 +199,7 @@ export function DownloadFlow() {
                     {typed > 0 ? (
                       URL_TEXT.slice(0, typed)
                     ) : (
-                      <span className="dlf-placeholder">Paste a YouTube URL…</span>
+                      <span className="dlf-placeholder">Paste a video URL…</span>
                     )}
                     {!started ? <span className="dlf-caret" /> : null}
                   </span>
