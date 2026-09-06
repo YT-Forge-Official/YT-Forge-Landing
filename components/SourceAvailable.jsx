@@ -67,11 +67,11 @@ export function SourceAvailable({ stats }) {
                     rel="noreferrer"
                     data-reveal
                     style={{ '--reveal-delay': `${i * 70}ms` }}
-                    className="border-line-subtle hover:bg-bg-hover group p-6 transition-colors duration-200 border-t first:border-t-0 sm:border-t-0 sm:[&:nth-child(even)]:border-l sm:[&:nth-child(n+3)]:border-t"
+                    className="flex flex-col items-center text-center sm:items-start sm:text-left border-line-subtle hover:bg-bg-hover group p-6 transition-colors duration-200 border-t first:border-t-0 sm:border-t-0 sm:[&:nth-child(even)]:border-l sm:[&:nth-child(n+3)]:border-t"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="relative flex items-center justify-center sm:justify-start w-full">
                       <t.icon className="text-ink-3 size-3.5" />
-                      <ArrowUpRight className="text-ink-4 size-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                      <ArrowUpRight className="absolute right-0 text-ink-4 size-3 opacity-0 transition-opacity group-hover:opacity-100" />
                     </div>
                     <p className="mt-6 font-[family-name:var(--font-geist-mono)] text-[22px] sm:text-[30px] leading-none tracking-[-0.03em] tabular-nums truncate">
                       {t.value}
