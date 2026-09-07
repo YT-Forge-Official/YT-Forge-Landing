@@ -32,46 +32,55 @@ export const metadata = {
   // *.vercel.app deploy URL are three indexable copies competing with
   // each other, and Google picks the winner instead of you.
   alternates: { canonical: '/' },
-  title: 'YT-FORGE — Universal video downloader, finally done right',
+  title: 'YT-Forge: Free Universal Video Downloader',
   description:
-    'A fast, source-available video downloader for macOS, Windows and Linux. 1,000+ sites, and it prefers H.264 + AAC so files drop straight onto a Premiere or Resolve timeline.',
+    'A free, universal video downloader for macOS, Windows, and Linux. Download from YouTube, Instagram, TikTok, Facebook, and 1,000+ other sites. H.264 + AAC by default.',
   // Broad terms first, then the individual sites people actually type. The
   // app reaches everything yt-dlp does, so naming a few is a sample, not
   // the positioning — that lives in the title.
   keywords: [
-    'video downloader',
-    'universal video downloader',
+    'free video downloader',
+    'youtube to mp4',
     'yt-dlp gui',
-    'h264 video download',
+    '4k video downloader',
+    '8k video downloader',
+    'mac video downloader',
+    'windows video downloader',
+    'best yt dlp gui',
+    'open source video downloader',
+    'batch video downloader',
+    'youtube playlist downloader',
+    'twitter video downloader',
+    'instagram video downloader',
+    'tiktok video downloader no watermark',
+    'reddit video downloader',
     'video downloader for editors',
     'premiere pro video download',
-    'youtube downloader',
-    'instagram video downloader',
-    'tiktok video downloader',
+    'h264 video download',
   ],
   authors: [{ name: 'Suja', url: REPO_URL }],
   openGraph: {
-    title: 'YT-FORGE — Universal video downloader, finally done right',
+    title: 'YT-Forge: Free Universal Video Downloader',
     description:
-      'Editor-friendly downloads from 1,000+ sites. H.264 + AAC by default, built-in conversion, playlist batching. No ads, no tracking.',
+      'A free, universal video downloader for macOS, Windows, and Linux. Download from YouTube, Instagram, TikTok, Facebook, and 1,000+ other sites. H.264 + AAC by default.',
     type: 'website',
     url: '/',
-    siteName: 'YT-FORGE',
+    siteName: 'YT-Forge',
     locale: 'en_US',
     images: [
       {
-        url: '/og-banner.png',
+        url: '/yt-forge banner v2.png',
         width: 1200,
         height: 630,
-        alt: 'YT-FORGE — Universal video downloader, finally done right',
+        alt: 'YT-Forge: Free Universal Video Downloader',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'YT-FORGE — Universal video downloader, finally done right',
-    description: 'Editor-friendly downloads from 1,000+ sites. H.264 + AAC by default.',
-    images: ['/og-banner.png'],
+    title: 'YT-Forge: Free Universal Video Downloader',
+    description: 'A free, universal video downloader for macOS, Windows, and Linux. Download from YouTube, Instagram, TikTok, Facebook, and 1,000+ other sites. H.264 + AAC by default.',
+    images: ['/yt-forge banner v2.png'],
   },
   icons: { icon: '/icon.png', apple: '/icon.png' },
   // Defaults cap the text snippet and preview image Google may show. Opting
