@@ -1,9 +1,9 @@
 import { Geist, Geist_Mono, Poppins } from 'next/font/google';
-import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 import { REPO_URL } from '@/lib/site';
 import { SITE_URL } from '@/lib/seo';
+import { SiteAnalytics } from '@/components/SiteAnalytics';
 
 const geist = Geist({
   subsets: ['latin'],
@@ -127,7 +127,7 @@ export default function RootLayout({ children }) {
           env var to keep in sync — the project is identified by the
           deployment serving the request, not by anything committed here.
         */}
-        <Analytics />
+        <SiteAnalytics />
         <SpeedInsights />
       </body>
     </html>

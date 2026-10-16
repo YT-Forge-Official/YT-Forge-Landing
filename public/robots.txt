@@ -1,7 +1,9 @@
 # Everything is crawlable except Next's build output, which is hashed JS and
-# CSS with nothing to index.
+# CSS with nothing to index, and the private analytics dashboard + its API.
 User-agent: *
 Allow: /
 Disallow: /_next/
+Disallow: /stats
+Disallow: /api/
 
 Sitemap: https://yt-forge.com/sitemap.xml

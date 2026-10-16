@@ -95,3 +95,35 @@ Deployments are triggered automatically upon pushing to the `main` branch. The s
 
 **Configuration Requirements:**
 - The `metadataBase` in `app/layout.jsx` must exactly match the production domain to ensure Open Graph and Twitter image URLs resolve correctly.
+
+## Analytics (`/stats`)
+
+A private dashboard combining GitHub release downloads with Vercel Web Analytics, kept in Neon Postgres so history outlives Vercel's 30-day reporting window.
+
+**How data gets in**
+
+- `GET /api/cron/sync` (needs `Authorization: Bearer $CRON_SECRET`) does two things:
+  - **GitHub:** snapshots every release asset's download counter and writes a row to `gh_download_events` only when a counter moved. Each row says "N downloads happened between `since` and `observed_at`". Hourly snapshots give hourly resolution. A missed run loses nothing: the next one picks up the whole gap, and the dashboard spreads it evenly (hatched bars).
+  - **Vercel:** copies hourly page views and visitors (`web_hourly`), plus per-day top pages, referrers, countries, devices, OS and browsers (`web_breakdown`), from the [Web Analytics API](https://vercel.com/docs/analytics/web-analytics-api). It runs at most every 3 hours. The first run backfills 30 days, and later runs re-read the last 2 days and anything missed.
+- **Hourly trigger:** `.github/workflows/analytics-sync.yml`. Hobby crons are daily-only, so `vercel.json` keeps just a daily backstop.
+- **Classification:** `lib/analytics/assets.js` sorts files into installers (`.dmg .exe .AppImage .deb`), updates (mac `.zip`, `.blockmap`) and update checks (`latest*.yml`). Classification happens on read, so changing a rule re-buckets all history.
+
+**Environment variables (Vercel → Settings → Environment Variables, Production)**
+
+| Name | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Neon connection string. The Neon integration sets it. |
+| `CRON_SECRET` | Shared secret for `/api/cron/sync`. Vercel cron sends it automatically. |
+| `STATS_PASSWORD` | Basic-auth password for `/stats` (any username). Without it, `/stats` returns 503 in production. |
+| `VERCEL_ANALYTICS_TOKEN` | Vercel access token with access to the team. Enables traffic sync. |
+| `GITHUB_TOKEN` | Optional. Raises the GitHub API rate limit. |
+
+**GitHub repository secrets (Settings → Secrets and variables → Actions):** `SYNC_URL` (`https://yt-forge.com/api/cron/sync`) and `CRON_SECRET` (the same value as above).
+
+**Local**
+
+```bash
+npm run stats:sync                 # one sync against DATABASE_URL in .env.local
+npm run stats:sync -- --web        # force a Web Analytics copy
+npm run dev                        # /stats is open without a password in dev
+```
