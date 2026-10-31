@@ -68,13 +68,13 @@ export function Footer() {
           </div>
 
           {/* ——— the developer ——— */}
-          <div className="border-line-subtle lg:border-l lg:pl-10">
+          {/* <div className="border-line-subtle lg:border-l lg:pl-10">
             <p className="eyebrow">About developer</p>
 
             <div className="mt-6">
               <DeveloperPanel />
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="rule my-8" />
